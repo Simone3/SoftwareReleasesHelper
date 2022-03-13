@@ -1,0 +1,144 @@
+
+# Disable actual Jenkins API calls and Git operations, for test purposes
+test-mode: true
+
+# Show passwords as plaintext on screen
+print-passwords: false
+
+# Optionally pre-fill the category and/or projects prompts, especially useful as extra "-D" parameters for specific scripts
+#optional-pre-selected-category-index: '1'
+#optional-pre-selected-project-indices: '1'
+
+# Configuration for Git operations (required only if Git operations are defined)
+git:
+  # Optional base path for all repositories
+  base-path: '~/Desktop/example'
+  # Git credentials
+  username: 'my-git-user'
+  password: 'my-git-password'
+  # Message for automatic merges (you can use [SOURCE_BRANCH] and [TARGET_BRANCH] placeholders)
+  merge-message: 'Merge branch ''[SOURCE_BRANCH]'' into ''[TARGET_BRANCH]'' (auto-merge)'
+  # Timeout in milliseconds for remote Git operations (e.g. pull)
+  timeout-milliseconds: 5000
+
+# Configuration for Jenkins builds (required only if Jenkins builds are defined)
+jenkins:
+  # Main Jenkins host
+  base-url: 'http://myjenkins.com'
+  # Relative path for crumb issuer
+  crumb-url: '/crumbIssuer/api/json'
+  # Jenkins credentials
+  username: 'my-jenkins-user'
+  password: 'my-jenkins-password'
+  # Skip certificate validation
+  insecure-https: false
+  # Timeout in milliseconds for Jenkins API calls
+  timeout-milliseconds: 5000
+
+# List of categories, i.e. groups of project definitions
+categories:
+  -
+    # Custom category name
+    name: 'My First Category'
+    # List of projects, i.e. containers for actions
+    projects:
+      -
+        # Custom project name
+        name: 'My First Project'
+        # List of actions to perform (in order) for this project
+        actions:
+          -
+            # A Git action
+            action-type: 'GIT'
+            # Git repo folder, appended to the optional "git.base-path" property
+            git-repository-folder: '/repo1'
+            # List of Git operations on this repository
+            git-operations:
+              -
+                # a Git merge operation
+                type: 'MERGE'
+                # Pull both branches before merging
+                pull: true
+                # Source Git branch for the merge
+                source-branch: 'branch1'
+                # Target Git branch for the merge
+                target-branch: 'branch2'
+              -
+                type: 'MERGE'
+                pull: false
+                source-branch: 'branch2'
+                target-branch: 'branch3'
+          -
+            # A Jenkins action
+            action-type: 'JENKINS'
+            # Relative path for build
+            build-url: '/job/my-path-1/job/my-build-1/buildWithParameters'
+            # List of build parameters
+            build-parameters:
+              -
+                # Build parameter name
+                key: 'My_Param'
+                # Static build parameter definition with fixed value 'test'
+                value: 'test'
+              -
+                key: 'This_Param'
+                # Dynamic build parameter definition: app will prompt for 'This_Param' value at run-time
+                askMe: true
+              -
+                key: 'Other_Param'
+                value: 'sample'
+              -
+                key: 'OtherTest'
+                askMe: true
+                # All spaces and invisible characters will be removed from parameter value
+                remove-whitespace: true
+      -
+        name: 'My Second Project'
+        actions:
+          -
+            action-type: 'GIT'
+            git-repository-folder: '/repo2'
+            git-operations:
+              -
+                type: 'MERGE'
+                pull: false
+                source-branch: 'branch4'
+                target-branch: 'branch5'
+          -
+            action-type: 'GIT'
+            git-repository-folder: '/repo3'
+            git-operations:
+              -
+                type: 'MERGE'
+                pull: false
+                source-branch: 'branch5'
+                target-branch: 'branch6'
+
+  -
+    name: 'My Second Category'
+    projects:
+      -
+        name: 'My Third Project'
+        actions:
+          -
+            action-type: 'JENKINS'
+            build-url: '/job/my-build-2/buildWithParameters'
+            build-parameters:
+              -
+                key: 'Test'
+                value: 'fixed'
+  -
+    name: 'My Third Category'
+    projects:
+      -
+        name: 'My Fourth Project'
+        actions:
+          -
+            action-type: 'GIT'
+            git-repository-folder: '/repo4'
+            git-operations:
+              -
+                type: 'MERGE'
+                pull: false
+                source-branch: 'branch7'
+                target-branch: 'branch8'
