@@ -55,7 +55,7 @@ categories:
             # List of Git operations on this repository
             git-operations:
               -
-                # a Git merge operation
+                # A Git merge operation
                 type: 'MERGE'
                 # Pull both branches before merging
                 pull: true
