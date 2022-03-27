@@ -161,7 +161,7 @@ public class JenkinsLogic extends StepLogic<JenkinsStep>{
 				}
 				
 				cli.println("Starting build...");
-				service.startBuild(crumbUrl, buildUrl, username, password, parameters);
+				service.startBuild(buildUrl, username, password, crumb, parameters);
 				cli.println("Build started successfully!");
 				
 				return true;
