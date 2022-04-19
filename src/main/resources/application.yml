@@ -1,8 +1,13 @@
 
 logging:
   level:
-    root: OFF
+    root: off
 
 spring:
   main:
     web-application-type: none
+  profiles:
+    active:
+      - actions
+      - categories
+      - configuration
