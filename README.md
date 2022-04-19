@@ -1,8 +1,4 @@
 
-
-[[_TOC_]]
-
-
 ## Software Releases Helper
 
 
