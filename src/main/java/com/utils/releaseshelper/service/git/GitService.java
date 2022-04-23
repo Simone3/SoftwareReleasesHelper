@@ -53,7 +53,7 @@ public class GitService implements Service {
 			
 			String originalBranch = connector.getCurrentBranch(git);
 			
-			connector.checkBranchesExist(git, branch);
+			checkBranchesExistWithRetries(git, branch);
 			
 			connector.switchBranch(git, branch);
 			cli.println("Switched to %s", branch);
@@ -146,7 +146,7 @@ public class GitService implements Service {
 		mergeMessagePlaceholders.put(MESSAGE_PLACEHOLDER_TARGET_BRANCH, targetBranch);
 		String mergeMessage = VariablesUtils.replaceVariablePlaceholders(gitConfig.getMergeMessage(), null, mergeMessagePlaceholders);
 		
-		connector.checkBranchesExist(git, sourceBranch, targetBranch);
+		checkBranchesExistWithRetries(git, sourceBranch, targetBranch);
 		
 		if(pull) {
 			
@@ -197,6 +197,21 @@ public class GitService implements Service {
 		    
 		    cli.println("Successfully committed all changes on %s with comment \"%s\"", currentBranch, message);
 		}
+	}
+	
+	private boolean checkBranchesExistWithRetries(GitRepository git, String... branches) {
+		
+		boolean branchesExist = RetryUtils.retry(cli, "Retry checking local branches", "Error checking branches", () -> {
+			
+			connector.checkBranchesExist(git, branches);
+		});
+		
+		if(!branchesExist) {
+			
+			throw new IllegalStateException("Cannot run Git if branches do not exist");
+		}
+		
+		return branchesExist;
 	}
 	
 	private boolean pullWithRetries(GitRepository git, GitConfig gitConfig, String currentBranch) {

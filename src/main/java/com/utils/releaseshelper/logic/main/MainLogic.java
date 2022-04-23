@@ -202,12 +202,23 @@ public class MainLogic extends StepLogic<MainStep> {
 			
 			Action action = project.getActions().get(i);
 			String actionDescription = "action \"" + action.getName() + "\" (" + action.getTypeDescription() + ")";
-
+			
 			cli.startIdentationGroup("Start %s", actionDescription);
 			
-			actionDispatcher.dispatch(action, projectVariables);
-
-			cli.endIdentationGroup("End %s", actionDescription);
+			try {
+				
+				actionDispatcher.dispatch(action, projectVariables);
+			}
+			catch(Exception e) {
+				
+				log.error("Action error", e);
+				cli.printError("Aborting all project actions because of error: %s", e.getMessage());
+				return;
+			}
+			finally {
+				
+				cli.endIdentationGroup("End %s", actionDescription);
+			}
 		}
 	}
 
