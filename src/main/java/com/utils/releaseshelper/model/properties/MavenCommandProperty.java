@@ -12,5 +12,6 @@ public class MavenCommandProperty {
 	
 	private String goals;
 	private Map<String, String> arguments;
+	private Boolean offline;
 	private Boolean printMavenOutput;
 }

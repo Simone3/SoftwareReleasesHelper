@@ -53,7 +53,7 @@ public class MavenConnectorReal implements MavenConnector {
 	}
 	
 	@Override
-	public void runCommand(File pomFile, CommandLineOutputHandler outputHandler, String goals, Map<String, String> arguments) {
+	public void runCommand(File pomFile, CommandLineOutputHandler outputHandler, String goals, Map<String, String> arguments, boolean offline) {
 		
 		Invoker invoker = getInvoker(outputHandler);
 		
@@ -65,7 +65,7 @@ public class MavenConnectorReal implements MavenConnector {
 			argumentProperties.putAll(arguments);
 		}
 		
-	    InvocationResult result = invoke(invoker, pomFile, goalsList, argumentProperties);
+	    InvocationResult result = invoke(invoker, pomFile, goalsList, argumentProperties, offline);
 	    validateResult(result);
 	}
 
@@ -99,13 +99,14 @@ public class MavenConnectorReal implements MavenConnector {
 	}
 	
 	@SneakyThrows
-	private InvocationResult invoke(Invoker invoker, File pomFile, List<String> goals, Properties arguments) {
+	private InvocationResult invoke(Invoker invoker, File pomFile, List<String> goals, Properties arguments, boolean offline) {
 		
 		InvocationRequest request = new DefaultInvocationRequest();
 		request.setPomFile(pomFile);
 		request.setBatchMode(true);
 		request.setGoals(goals);
 		request.setProperties(arguments);
+		request.setOffline(offline);
 		return invoker.execute(request);
 	}
 	

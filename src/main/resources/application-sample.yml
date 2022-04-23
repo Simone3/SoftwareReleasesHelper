@@ -56,6 +56,7 @@ action-definitions:
     commands:
       -
         goals: 'versions:set'
+        offline: true
         arguments:
           newVersion: '#[my-second-var]'
           generateBackupPoms: 'false'

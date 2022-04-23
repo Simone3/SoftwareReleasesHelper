@@ -66,6 +66,7 @@ public class MavenMapperValidator {
 		
 		String goalsProperty = mavenCommandProperty.getGoals();
 		Map<String, String> argumentsProperties = mavenCommandProperty.getArguments();
+		Boolean offline = mavenCommandProperty.getOffline();
 		Boolean printOutput = mavenCommandProperty.getPrintMavenOutput();
 		
 		ValueDefinition goals;
@@ -95,6 +96,7 @@ public class MavenMapperValidator {
 		MavenCommand mavenCommand = new MavenCommand();
 		mavenCommand.setGoals(goals);
 		mavenCommand.setArguments(arguments);
+		mavenCommand.setOffline(offline != null && offline);
 		mavenCommand.setPrintMavenOutput(printOutput != null && printOutput);
 		return mavenCommand;
 	}

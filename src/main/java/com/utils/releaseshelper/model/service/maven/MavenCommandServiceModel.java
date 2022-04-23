@@ -12,5 +12,6 @@ public class MavenCommandServiceModel {
 
 	private String goals;
 	private Map<String, String> arguments;
+	private boolean offline;
 	private boolean printMavenOutput;
 }

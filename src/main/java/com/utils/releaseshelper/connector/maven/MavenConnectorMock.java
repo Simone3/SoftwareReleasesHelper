@@ -24,7 +24,7 @@ public class MavenConnectorMock implements MavenConnector {
 	}
 
 	@Override
-	public void runCommand(File pomFile, CommandLineOutputHandler outputHandler, String goals, Map<String, String> arguments) {
+	public void runCommand(File pomFile, CommandLineOutputHandler outputHandler, String goals, Map<String, String> arguments, boolean offline) {
 		
 		log.warn("Maven operations disabled: skipping run command {} with arguments {}", goals, arguments);
 		

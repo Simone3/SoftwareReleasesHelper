@@ -13,5 +13,5 @@ public interface MavenConnector extends Connector {
 
 	File getPomFile(String projectFolder);
 
-	void runCommand(File pomFile, CommandLineOutputHandler outputHandler, String goals, Map<String, String> arguments);
+	void runCommand(File pomFile, CommandLineOutputHandler outputHandler, String goals, Map<String, String> arguments, boolean offline);
 }

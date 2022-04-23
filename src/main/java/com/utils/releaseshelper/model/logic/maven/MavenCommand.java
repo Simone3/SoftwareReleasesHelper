@@ -15,5 +15,6 @@ public class MavenCommand {
 
 	private ValueDefinition goals;
 	private List<VariableDefinition> arguments;
+	private boolean offline;
 	private boolean printMavenOutput;
 }

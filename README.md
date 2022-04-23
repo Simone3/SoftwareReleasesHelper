@@ -133,6 +133,7 @@ Fields:
 - `commands`: the list of commands to run (at least one required)
 	- `goals`: the goal(s) of the command, separated by a space (required), value can be [dynamic](#dynamic-value-definitions)
 	- `arguments`: key-value map of command arguments (optional), values can be [dynamic](#dynamic-value-definitions)
+	- `offline`: if `true` the command is executed in offline mode (default `false`)
 	- `print-maven-output`: if `true` the full Maven output will be printed (default `false`)
 - `gitCommit`: definition of the Git commit for any resulting change (optional)
 	- `branch`: the Git branch (required), value can be [dynamic](#dynamic-value-definitions)
