@@ -25,7 +25,6 @@ import com.utils.releaseshelper.model.properties.GitProperties;
 import com.utils.releaseshelper.model.properties.JenkinsProperties;
 import com.utils.releaseshelper.model.properties.MavenCommandProperty;
 import com.utils.releaseshelper.model.properties.MavenProperties;
-import com.utils.releaseshelper.model.properties.VariableDefinitionProperty;
 import com.utils.releaseshelper.utils.FileUtils;
 import com.utils.releaseshelper.utils.UrlUtils;
 import com.utils.releaseshelper.validation.ValidationException;
@@ -185,7 +184,7 @@ public class ActionMapperValidator {
 	
 	private static DefineVariablesAction mapAndValidateDefineVariablesAction(ActionProperty actionProperty) {
 		
-		List<VariableDefinitionProperty> variableProperties = actionProperty.getVariables();
+		Map<String, String> variableProperties = actionProperty.getVariables();
 		
 		List<VariableDefinition> variables;
 		try {
@@ -210,7 +209,7 @@ public class ActionMapperValidator {
 		GitCommitProperty gitCommitProperty = actionProperty.getGitCommit();
 		
 		String fullProjectFolder = FileUtils.getFullPath(mavenProperties == null ? null : mavenProperties.getBasePath(), projectFolder);
-
+		
 		List<MavenCommand> commands = null;
 		try {
 			
@@ -269,7 +268,7 @@ public class ActionMapperValidator {
 	private static JenkinsBuildAction mapAndValidateJenkinsBuildAction(ActionProperty actionProperty, JenkinsProperties jenkinsProperties) {
 		
 		String url = ValidationUtils.notBlank(actionProperty.getUrl(), "Jenkins build action does not have a URL");
-		List<VariableDefinitionProperty> parametersProperties = actionProperty.getParameters();
+		Map<String, String> parametersProperties = actionProperty.getParameters();
 		
 		List<VariableDefinition> parameters = null;
 		if(!CollectionUtils.isEmpty(parametersProperties)) {

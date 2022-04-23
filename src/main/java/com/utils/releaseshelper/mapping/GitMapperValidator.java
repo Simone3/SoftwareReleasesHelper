@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.utils.releaseshelper.model.config.GitConfig;
+import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.git.GitCommit;
 import com.utils.releaseshelper.model.logic.git.GitMerge;
 import com.utils.releaseshelper.model.properties.GitCommitProperty;
@@ -61,14 +62,29 @@ public class GitMapperValidator {
 	}
 	
 	public static GitMerge mapAndValidateGitMerge(GitMergeProperty mergeProperty) {
-		
+
+		String sourceBranchProperty = mergeProperty.getSourceBranch();
+		String targetBranchProperty = mergeProperty.getTargetBranch();
 		Boolean pull = mergeProperty.getPull();
-		String sourceBranch = ValidationUtils.notBlank(mergeProperty.getSourceBranch(), "Merge does not have a source branch");
-		String targetBranch = ValidationUtils.notBlank(mergeProperty.getTargetBranch(), "Merge does not have a target branch");
 		
-		if(sourceBranch.trim().equals(targetBranch.trim())) {
+		ValueDefinition sourceBranch;
+		try {
+			
+			sourceBranch = VariablesMapperValidator.mapAndValidateValueDefinition(sourceBranchProperty);
+		}
+		catch(Exception e) {
+			
+			throw new ValidationException("Invalid merge source branch -> " + e.getMessage());
+		}
 		
-			throw new ValidationException("Merge has the same source and target branches");
+		ValueDefinition targetBranch;
+		try {
+			
+			targetBranch = VariablesMapperValidator.mapAndValidateValueDefinition(targetBranchProperty);
+		}
+		catch(Exception e) {
+			
+			throw new ValidationException("Invalid merge target branch -> " + e.getMessage());
 		}
 		
 		GitMerge merge = new GitMerge();
@@ -79,10 +95,30 @@ public class GitMapperValidator {
 	}
 	
 	public static GitCommit mapAndValidateGitCommit(GitCommitProperty commitProperty) {
-		
+
+		String branchProperty = commitProperty.getBranch();
+		String messageProperty = commitProperty.getCommitMessage();
 		Boolean pull = commitProperty.getPull();
-		String branch = ValidationUtils.notBlank(commitProperty.getBranch(), "Commit does not have a branch");
-		String message = ValidationUtils.notBlank(commitProperty.getCommitMessage(), "Commit does not have a message");
+		
+		ValueDefinition branch;
+		try {
+			
+			branch = VariablesMapperValidator.mapAndValidateValueDefinition(branchProperty);
+		}
+		catch(Exception e) {
+			
+			throw new ValidationException("Invalid commit branch -> " + e.getMessage());
+		}
+		
+		ValueDefinition message;
+		try {
+			
+			message = VariablesMapperValidator.mapAndValidateValueDefinition(messageProperty);
+		}
+		catch(Exception e) {
+			
+			throw new ValidationException("Invalid commit message -> " + e.getMessage());
+		}
 		
 		GitCommit commit = new GitCommit();
 		commit.setPull(pull != null && pull);

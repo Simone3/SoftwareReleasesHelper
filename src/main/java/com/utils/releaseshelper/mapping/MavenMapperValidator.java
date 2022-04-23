@@ -2,15 +2,16 @@ package com.utils.releaseshelper.mapping;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.util.CollectionUtils;
 
 import com.utils.releaseshelper.model.config.MavenConfig;
+import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.VariableDefinition;
 import com.utils.releaseshelper.model.logic.maven.MavenCommand;
 import com.utils.releaseshelper.model.properties.MavenCommandProperty;
 import com.utils.releaseshelper.model.properties.MavenProperties;
-import com.utils.releaseshelper.model.properties.VariableDefinitionProperty;
 import com.utils.releaseshelper.validation.ValidationException;
 import com.utils.releaseshelper.validation.ValidationUtils;
 
@@ -63,9 +64,20 @@ public class MavenMapperValidator {
 		
 		ValidationUtils.notNull(mavenCommandProperty, "No Maven command defined");
 		
-		String goals = ValidationUtils.notBlank(mavenCommandProperty.getGoals(), "No goals provided");
-		List<VariableDefinitionProperty> argumentsProperties = mavenCommandProperty.getArguments();
+		String goalsProperty = mavenCommandProperty.getGoals();
+		Map<String, String> argumentsProperties = mavenCommandProperty.getArguments();
 		Boolean printOutput = mavenCommandProperty.getPrintMavenOutput();
+		
+		ValueDefinition goals;
+		try {
+			
+			goals = VariablesMapperValidator.mapAndValidateValueDefinition(goalsProperty);
+		}
+		catch(Exception e) {
+			
+			throw new ValidationException("Invalid Maven command goals -> " + e.getMessage());
+		}
+		
 		
 		List<VariableDefinition> arguments = null;
 		if(!CollectionUtils.isEmpty(argumentsProperties)) {

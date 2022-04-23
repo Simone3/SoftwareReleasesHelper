@@ -1,6 +1,6 @@
 package com.utils.releaseshelper.model.properties;
 
-import java.util.List;
+import java.util.Map;
 
 import lombok.Data;
 
@@ -11,6 +11,6 @@ import lombok.Data;
 public class MavenCommandProperty {
 	
 	private String goals;
-	private List<VariableDefinitionProperty> arguments;
+	private Map<String, String> arguments;
 	private Boolean printMavenOutput;
 }

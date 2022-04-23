@@ -48,7 +48,7 @@ public class VariablesUtils {
 	public static String defineVariable(CommandLineInterface cli, String promptPrefix, VariableDefinition variableToDefine, Map<String, String> sourceVariables) {
 		
 		String key = variableToDefine.getKey();
-		return defineValue(cli, promptPrefix + " " + key, variableToDefine, sourceVariables);
+		return defineValue(cli, promptPrefix + " " + key, variableToDefine.getValue(), sourceVariables);
 	}
 	
 	public static String replaceVariablePlaceholders(String sourceString, Map<String, String> variables, Map<String, String> customPlaceholders) {

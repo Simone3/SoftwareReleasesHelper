@@ -1,6 +1,7 @@
 package com.utils.releaseshelper.validation;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -13,6 +14,16 @@ import lombok.experimental.UtilityClass;
 public class ValidationUtils {
 
 	public static <T> List<T> notEmpty(List<T> value, String message) {
+		
+		if(value == null || value.isEmpty()) {
+			
+			throw new ValidationException(message);
+		}
+		
+		return value;
+	}
+
+	public static <K, V> Map<K, V> notEmpty(Map<K, V> value, String message) {
 		
 		if(value == null || value.isEmpty()) {
 			

@@ -1,6 +1,7 @@
 package com.utils.releaseshelper.model.properties;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.Data;
 
@@ -17,7 +18,7 @@ public class ActionProperty {
 	private Boolean skipConfirmation;
 	
 	// Define variables
-	private List<VariableDefinitionProperty> variables;
+	private Map<String, String> variables;
 	
 	// Git
 	private String repositoryFolder;
@@ -26,7 +27,7 @@ public class ActionProperty {
 
 	// Jenkins
 	private String url;
-	private List<VariableDefinitionProperty> parameters;
+	private Map<String, String> parameters;
 	
 	// Maven
 	private String projectFolder;

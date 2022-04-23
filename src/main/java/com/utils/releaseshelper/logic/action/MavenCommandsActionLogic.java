@@ -10,6 +10,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.utils.releaseshelper.model.logic.VariableDefinition;
 import com.utils.releaseshelper.model.logic.action.MavenCommandsAction;
+import com.utils.releaseshelper.model.logic.git.GitCommit;
 import com.utils.releaseshelper.model.logic.maven.MavenCommand;
 import com.utils.releaseshelper.model.service.git.GitCommitChangesServiceInput;
 import com.utils.releaseshelper.model.service.git.GitPrepareForChangesServiceInput;
@@ -27,8 +28,10 @@ public class MavenCommandsActionLogic extends ActionLogic<MavenCommandsAction> {
 
 	private final MavenService mavenService;
 	private final GitService gitService;
-	
+
+	private List<String> commandsGoals = new ArrayList<>();
 	private List<Map<String, String>> commandsArguments;
+	private String commitBranch;
 	private String commitMessage;
 
 	protected MavenCommandsActionLogic(MavenCommandsAction action, Map<String, String> variables, CommandLineInterface cli, MavenService mavenService, GitService gitService) {
@@ -41,8 +44,9 @@ public class MavenCommandsActionLogic extends ActionLogic<MavenCommandsAction> {
 	@Override
 	protected void beforeAction() {
 		
+		defineGoals();
 		defineArguments();
-		defineCommitMessage();
+		defineCommit();
 	}
 
 	@Override
@@ -55,8 +59,7 @@ public class MavenCommandsActionLogic extends ActionLogic<MavenCommandsAction> {
 		
 		for(int i = 0; i < commands.size(); i++) {
 			
-			MavenCommand command = commands.get(i);
-			String goals = command.getGoals();
+			String goals = commandsGoals.get(i);
 			Map<String, String> arguments = commandsArguments.get(i);
 			
 			if(arguments == null) {
@@ -76,7 +79,7 @@ public class MavenCommandsActionLogic extends ActionLogic<MavenCommandsAction> {
 		if(action.getGitCommit() != null) {
 			
 			cli.println("And then commit all changes:");
-			cli.println("  - Branch: %s", action.getGitCommit().getBranch());
+			cli.println("  - Branch: %s", commitBranch);
 			cli.println("  - Message: %s", commitMessage);
 		}
 		
@@ -119,14 +122,26 @@ public class MavenCommandsActionLogic extends ActionLogic<MavenCommandsAction> {
 		
 		// Do nothing here for now
 	}
+
+	private void defineGoals() {
+		
+		List<MavenCommand> commands = action.getCommands();
+		for(int i = 0; i < commands.size(); i++) {
+			
+			MavenCommand command = commands.get(i);
+			commandsGoals.add(VariablesUtils.defineValue(cli, "Define goal for command at index " + i, command.getGoals(), variables));
+		}
+	}
 	
 	private void defineArguments() {
 		
 		commandsArguments = new ArrayList<>();
 		
-		for(MavenCommand command: action.getCommands()) {
-
-			String goals = command.getGoals();
+		List<MavenCommand> commands = action.getCommands();
+		for(int i = 0; i < commands.size(); i++) {
+			
+			MavenCommand command = commands.get(i);
+			String goals = commandsGoals.get(i);
 			List<VariableDefinition> argumentDefinitions = command.getArguments();
 			
 			if(!CollectionUtils.isEmpty(argumentDefinitions)) {
@@ -146,15 +161,13 @@ public class MavenCommandsActionLogic extends ActionLogic<MavenCommandsAction> {
 		}
 	}
 	
-	private void defineCommitMessage() {
+	private void defineCommit() {
 		
-		if(action.getGitCommit() != null) {
+		GitCommit gitCommit = action.getGitCommit();
+		if(gitCommit != null) {
 			
-			commitMessage = VariablesUtils.replaceVariablePlaceholders(action.getGitCommit().getMessage(), variables, null);
-		}
-		else {
-			
-			commitMessage = null;
+			commitBranch = VariablesUtils.defineValue(cli, "Define Git commit branch", gitCommit.getBranch(), variables);
+			commitMessage = VariablesUtils.defineValue(cli, "Define Git commit message", gitCommit.getMessage(), variables);
 		}
 	}
 	
@@ -162,7 +175,7 @@ public class MavenCommandsActionLogic extends ActionLogic<MavenCommandsAction> {
 		
 		GitPrepareForChangesServiceInput input = new GitPrepareForChangesServiceInput();
 		input.setRepositoryFolder(action.getProjectFolder());
-		input.setBranch(action.getGitCommit().getBranch());
+		input.setBranch(commitBranch);
 		input.setPull(action.getGitCommit().isPull());
 		return input;
 	}
@@ -184,18 +197,19 @@ public class MavenCommandsActionLogic extends ActionLogic<MavenCommandsAction> {
 		for(int i = 0; i < commands.size(); i++) {
 			
 			MavenCommand command = commands.get(i);
+			String goals = commandsGoals.get(i);
 			Map<String, String> arguments = commandsArguments.get(i);
 			
-			serviceCommands.add(mapMavenCommandModel(command, arguments));
+			serviceCommands.add(mapMavenCommandModel(command, goals, arguments));
 		}
 		
 		return serviceCommands;
 	}
 
-	private MavenCommandServiceModel mapMavenCommandModel(MavenCommand command, Map<String, String> arguments) {
+	private MavenCommandServiceModel mapMavenCommandModel(MavenCommand command, String goals, Map<String, String> arguments) {
 		
 		MavenCommandServiceModel serviceCommand = new MavenCommandServiceModel();
-		serviceCommand.setGoals(command.getGoals());
+		serviceCommand.setGoals(goals);
 		serviceCommand.setArguments(arguments);
 		serviceCommand.setPrintMavenOutput(command.isPrintMavenOutput());
 		return serviceCommand;

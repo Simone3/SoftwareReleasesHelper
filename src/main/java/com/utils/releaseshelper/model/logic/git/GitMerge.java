@@ -1,5 +1,7 @@
 package com.utils.releaseshelper.model.logic.git;
 
+import com.utils.releaseshelper.model.logic.ValueDefinition;
+
 import lombok.Data;
 
 /**
@@ -8,7 +10,7 @@ import lombok.Data;
 @Data
 public class GitMerge {
 
-	private String sourceBranch;
-	private String targetBranch;
+	private ValueDefinition sourceBranch;
+	private ValueDefinition targetBranch;
 	private boolean pull;
 }

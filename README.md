@@ -11,6 +11,8 @@ Actions include Git merges, Jenkins builds and Maven commands.
 Actions are grouped by category and project, with multiple-selection and chaining options.
 
 
+
+
 ### Install and run
 
 - [Download the JAR file](https://github.com/Simone3/SoftwareReleasesHelper/raw/main/downloads/SoftwareReleasesHelper.jar)
@@ -18,6 +20,8 @@ Actions are grouped by category and project, with multiple-selection and chainin
 - Run the JAR with `java -jar SoftwareReleasesHelper.jar`
 
 Java 11 or above is required to run the util.
+
+
 
 
 ### Configuration
@@ -30,21 +34,27 @@ The simplest way is to define an `application.yml` file in the JAR folder. As an
 
 See [application-sample.yml](https://github.com/Simone3/SoftwareReleasesHelper/blob/main/src/main/resources/application-sample.yml) for a sample configuration file.
 
+
+#### Dynamic Value Definitions
+
+In the following sections, some fields can be specified with a dynamic value. They are strings that can have:
+- a purely static value (a normal string), e.g. `'sample'`
+- a value with `#[...]` placeholders that map previously defined [variables](#define-variables-action), e.g. `'Value with placeholder #[my-variable-key]'` (note: the escape character is another `#`)
+- a run-time value `'{ask-me}'`, i.e. the user will be prompted for a value. Options for this type of value are available to further define the prompt behavior:
+	- `remove-whitespace` (e.g. `'{ask-me,remove-whitespace}'`): the user input will be stripped of all white spaces
+
+
 #### Actions
 
 Actions are the building blocks of the application. They define a specific function, e.g. run a Jenkins build.
 
 ##### Define Variables Action
-It allows to define one or more variables that can be used in following actions with `#[my-variable-key]`. Variables are defined with a project scope, i.e. are valid only for the list of actions of a single project.
+It allows to define one or more variables that can be used in following actions as placeholders (see [dynamic values](#dynamic-value-definitions)). Variables are defined with a project scope, i.e. are valid only for the list of actions of a single project.
 
 Fields:
 - `type`: `DEFINE_VARIABLES` (required)
 - `name`: action name, it must be unique for all actions (required)
-- `variables`: list of variables to define (at least one required)
-	- `key`: variable key (required)
-	- `value`: a static value, it can optionally use previously defined variables as `#[my-variable-key]` (optional)
-	- `ask-me`: if `true` the user will be prompted for a value at run-time (optional)
-	- `remove-whitespace`: if `true` the value will be stripped of all white spaces (default `false`)
+- `variables`: key-value map of variables to define (at least one required), values can be [dynamic](#dynamic-value-definitions) 
 
 Example:
 ```
@@ -52,12 +62,8 @@ Example:
     name: 'My Define Vars Action'
     type: 'DEFINE_VARIABLES'
     variables:
-      -
-        key: 'my-first-var'
-        value: 'my-fixed-value'
-      -
-        key: 'my-second-var'
-        ask-me: true
+      my-first-var: 'my-fixed-value'
+      my-second-var: '{ask-me}'
 ```
 
 ##### Jenkins Build Action
@@ -68,11 +74,7 @@ Fields:
 - `name`: action name, it must be unique for all actions (required)
 - `skip-confirmation`: if `true` the util won't prompt for confirmation before running the action (default `false`)
 - `url`: the relative Jenkins URL (required)
-- `parameters`: list of build parameters (optional)
-	- `key`: parameter key (required)
-	- `value`: a static value, it can optionally use previously defined variables as `#[my-variable-key]` (optional)
-	- `ask-me`: if `true` the user will be prompted for a value at run-time (optional)
-	- `remove-whitespace`: if `true` the value will be stripped of all white spaces (default `false`)
+- `parameters`: key-value map of build parameters (optional), values can be [dynamic](#dynamic-value-definitions) 
 
 It requires a [Jenkins configuration](#jenkins-config).
 
@@ -83,15 +85,9 @@ Example:
     type: 'JENKINS_BUILD'
     url: '/my-build/url'
     parameters:
-      -
-        key: 'my-first-param'
-        value: 'sample'
-      -
-        key: 'my-second-param'
-        ask-me: true
-      -
-        key: 'my-third-param'
-        value: 'Variable replacement #[my-first-var]'
+      my-first-param: 'sample'
+      my-second-param: '{ask-me,remove-whitespace}'
+      my-third-param: 'Variable replacement #[my-first-var]'
 ```
 
 ##### Git Merges Action
@@ -103,8 +99,8 @@ Fields:
 - `skip-confirmation`: if `true` the util won't prompt for confirmation before running the action (default `false`)
 - `repository-folder`: the absolute or relative path to the repository folder (required)
 - `merges`: the list of merges (at least one required)
-	- `source-branch`: the source branch
-	- `target-branch`: the target branch
+	- `source-branch`: the source branch, values can be [dynamic](#dynamic-value-definitions) 
+	- `target-branch`: the target branch, value can be [dynamic](#dynamic-value-definitions) 
 	- `pull`: if `true` the util will pull both source and target branches before the merge (default `false`)
 
 It requires a [Git configuration](#git-config).
@@ -118,7 +114,7 @@ Example:
     merges:
       -
         source-branch: 'my-branch'
-        target-branch: 'other-branch'
+        target-branch: '{ask-me,remove-whitespace}'
         pull: true
       -
         source-branch: 'this-branch'
@@ -135,17 +131,13 @@ Fields:
 - `skip-confirmation`: if `true` the util won't prompt for confirmation before running the action (default `false`)
 - `project-folder`: the absolute or relative path to the project folder (required)
 - `commands`: the list of commands to run (at least one required)
-	- `goals`: the goal(s) of the command, separated by a space (required)
-	- `arguments`: the command arguments (optional)
-		- `key`: argument key (required)
-		- `value`: a static value, it can optionally use previously defined variables as `#[my-variable-key]` (optional)
-		- `ask-me`: if `true` the user will be prompted for a value at run-time (optional)
-		- `remove-whitespace`: if `true` the value will be stripped of all white spaces (default `false`)
+	- `goals`: the goal(s) of the command, separated by a space (required), value can be [dynamic](#dynamic-value-definitions)
+	- `arguments`: key-value map of command arguments (optional), values can be [dynamic](#dynamic-value-definitions)
 	- `print-maven-output`: if `true` the full Maven output will be printed (default `false`)
 - `gitCommit`: definition of the Git commit for any resulting change (optional)
-	- `branch`: the Git branch (required)
+	- `branch`: the Git branch (required), value can be [dynamic](#dynamic-value-definitions)
+	- `commit-message`: the commit message  (required), value can be [dynamic](#dynamic-value-definitions)
 	- `pull`: if `true` the util will pull the branch before running the commands (default `false`)
-	- `commit-message`: the commit message, it can optionally use previously defined variables as `#[my-variable-key]` (required)
 
 It requires a [Maven configuration](#maven-config) and, if a Git commit is defined, a [Git configuration](#git-config).
 
@@ -159,12 +151,8 @@ Example:
       -
         goals: 'versions:set'
         arguments:
-          -
-            key: 'newVersion'
-            value: '#[my-second-var]'
-          -
-            key: 'generateBackupPoms'
-            value: 'false'
+          newVersion: '#[my-second-var]'
+          generateBackupPoms: 'false'
       -
         goals: 'clean install'
         print-maven-output: true
@@ -194,7 +182,9 @@ Example:
       - 'My Maven Action'
 ```
 
+
 #### Projects
+
 Projects are containers for actions. Once a project is selected, all its actions will be run in sequence.
 
 Fields:
@@ -210,7 +200,9 @@ Example:
           - 'My Jenkins Action'
 ```
 
+
 #### Categories
+
 Categories are containers for projects. The user will be prompted to choose one category and then which of its projects to run (multiple selection).
 
 Fields:
@@ -235,7 +227,9 @@ Example:
           - 'My Maven Action'
 ```
 
+
 #### Git Config
+
 Global Git configuration. It is required if at least one action is Git-related.
 
 Fields:
@@ -255,7 +249,9 @@ git:
   timeout-milliseconds: 5000
 ```
 
+
 #### Jenkins Config
+
 Global Jenkins configuration. It is required if at least one action is Jenkins-related.
 
 Fields:
@@ -277,7 +273,9 @@ jenkins:
   timeout-milliseconds: 5000
 ```
 
+
 #### Maven Config
+
 Global Maven configuration. It is required if at least one action is Maven-related.
 
 Fields:
@@ -290,6 +288,7 @@ maven:
   maven-home-folder: '/Library/apache-maven-3.6.3'
   base-path: '~/Desktop/example'
 ```
+
 
 #### Extra configuration
 
@@ -308,6 +307,7 @@ optional-pre-selected-project-indices: '2,4,5'
 ```
 
 
+
 ### Tech documentation
 
 The util is implemented as a Spring Boot application (Java 11, Maven).
@@ -323,6 +323,7 @@ The **service layer** is called by the logic layer for specific tasks. The *GitS
 The **connector layer** is called by the service layer and has the task of actually connecting to external components. The *GitConnector.java* allows to connect to a Git repository (via *JGit*), the *JenkinsConnector.java* allows to connect to a Jenkins server (via REST APIs) and *MavenConnector.java* allows to connect to a Maven project (via *Maven Invoker*).
 
 Logic and service components all use the *CommandLineInterface.java* for **user input and output**.
+
 
 
 

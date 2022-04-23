@@ -1,5 +1,7 @@
 package com.utils.releaseshelper.model.logic.git;
 
+import com.utils.releaseshelper.model.logic.ValueDefinition;
+
 import lombok.Data;
 
 /**
@@ -8,7 +10,7 @@ import lombok.Data;
 @Data
 public class GitCommit {
 
-	private String branch;
+	private ValueDefinition branch;
 	private boolean pull;
-	private String message;
+	private ValueDefinition message;
 }

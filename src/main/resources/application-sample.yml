@@ -26,26 +26,16 @@ action-definitions:
     name: 'My Define Vars Action'
     type: 'DEFINE_VARIABLES'
     variables:
-      -
-        key: 'my-first-var'
-        value: 'my-fixed-value'
-      -
-        key: 'my-second-var'
-        ask-me: true
+      my-first-var: 'my-fixed-value'
+      my-second-var: '{ask-me}'
   -
     name: 'My Jenkins Action'
     type: 'JENKINS_BUILD'
     url: '/my-build/url'
     parameters:
-      -
-        key: 'my-first-param'
-        value: 'sample'
-      -
-        key: 'my-second-param'
-        ask-me: true
-      -
-        key: 'my-third-param'
-        value: 'Variable replacement #[my-first-var]'
+      my-first-param: 'sample'
+      my-second-param: '{ask-me,remove-whitespace}'
+      my-third-param: 'Variable replacement #[my-first-var]'
   -
     name: 'My Merges Action'
     type: 'GIT_MERGES'
@@ -53,7 +43,7 @@ action-definitions:
     merges:
       -
         source-branch: 'my-branch'
-        target-branch: 'other-branch'
+        target-branch: '{ask-me,remove-whitespace}'
         pull: true
       -
         source-branch: 'this-branch'
@@ -67,12 +57,8 @@ action-definitions:
       -
         goals: 'versions:set'
         arguments:
-          -
-            key: 'newVersion'
-            value: '#[my-second-var]'
-          -
-            key: 'generateBackupPoms'
-            value: 'false'
+          newVersion: '#[my-second-var]'
+          generateBackupPoms: 'false'
       -
         goals: 'clean install'
         print-maven-output: true

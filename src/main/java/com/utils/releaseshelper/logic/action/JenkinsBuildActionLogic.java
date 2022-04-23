@@ -30,14 +30,7 @@ public class JenkinsBuildActionLogic extends ActionLogic<JenkinsBuildAction> {
 	@Override
 	protected void beforeAction() {
 		
-		buildParams = new LinkedHashMap<>();
-		
-		List<VariableDefinition> parameters = action.getParameters();
-		for(VariableDefinition parameter: parameters) {
-			
-			String value = VariablesUtils.defineVariable(cli, "Define Jenkins build parameter", parameter, variables);
-			buildParams.put(parameter.getKey(), value);
-		}
+		defineParams();
 	}
 
 	@Override
@@ -78,6 +71,18 @@ public class JenkinsBuildActionLogic extends ActionLogic<JenkinsBuildAction> {
 	protected void afterAction() {
 		
 		// Do nothing here for now
+	}
+
+	private void defineParams() {
+		
+		buildParams = new LinkedHashMap<>();
+		
+		List<VariableDefinition> parameters = action.getParameters();
+		for(VariableDefinition parameter: parameters) {
+			
+			String value = VariablesUtils.defineVariable(cli, "Define Jenkins build parameter", parameter, variables);
+			buildParams.put(parameter.getKey(), value);
+		}
 	}
 	
 	private JenkinsBuildServiceInput mapBuildServiceInput() {
