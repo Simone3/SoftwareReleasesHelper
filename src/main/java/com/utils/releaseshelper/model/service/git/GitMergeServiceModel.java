@@ -3,7 +3,7 @@ package com.utils.releaseshelper.model.service.git;
 import lombok.Data;
 
 /**
- * Description of a Git merge
+ * A Git merge
  */
 @Data
 public class GitMergeServiceModel {

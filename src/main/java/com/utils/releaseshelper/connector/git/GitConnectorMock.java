@@ -13,9 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GitConnectorMock implements GitConnector {
 
-	private static final int ERRORS_WORKSPACE = 1;
-	private static final int ERRORS_PULL = 1;
-	private int errorsCounter = 0;
+	private int workspaceErrorsToThrow = 0;
+	private int pullErrorsToThrow = 0;
+	private int thrownErrors = 0;
 	
 	@Override
 	public GitRepository getRepository(String repositoryPath) {
@@ -29,15 +29,15 @@ public class GitConnectorMock implements GitConnector {
 		
 		log.warn("Git operations disabled: skipping check working tree");
 		
-		if(ERRORS_WORKSPACE > 0) {
+		if(workspaceErrorsToThrow > 0) {
 			
-			if(errorsCounter >= ERRORS_WORKSPACE) {
+			if(thrownErrors >= workspaceErrorsToThrow) {
 				
-				errorsCounter = 0;
+				thrownErrors = 0;
 			}
 			else {
 				
-				errorsCounter++;
+				thrownErrors++;
 				return false;
 			}
 		}
@@ -83,15 +83,15 @@ public class GitConnectorMock implements GitConnector {
 		
 		log.warn("Git operations disabled: skipping pull with username {}", username);
 		
-		if(ERRORS_PULL > 0) {
+		if(pullErrorsToThrow > 0) {
 			
-			if(errorsCounter >= ERRORS_PULL) {
+			if(thrownErrors >= pullErrorsToThrow) {
 				
-				errorsCounter = 0;
+				thrownErrors = 0;
 			}
 			else {
 				
-				errorsCounter++;
+				thrownErrors++;
 				throw new IllegalStateException("This is a mock Git pull error!");
 			}
 		}

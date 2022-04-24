@@ -5,7 +5,7 @@ import java.util.Map;
 import lombok.Data;
 
 /**
- * Description of a Maven command
+ * A Maven command
  */
 @Data
 public class MavenCommandServiceModel {
@@ -13,5 +13,5 @@ public class MavenCommandServiceModel {
 	private String goals;
 	private Map<String, String> arguments;
 	private boolean offline;
-	private boolean printMavenOutput;
+	private boolean suppressOutput;
 }

@@ -31,7 +31,12 @@ public class ActionProperty {
 	
 	// Maven
 	private String projectFolder;
-	private List<MavenCommandProperty> commands;
+	
+	// OS commands
+	private String folder;
+	
+	// Maven and OS commands
+	private List<GenericCommandProperty> commands;
 	
 	// Chain
 	private List<String> actions;

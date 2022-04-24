@@ -9,5 +9,6 @@ public enum ActionTypeProperty {
 	JENKINS_BUILD,
 	GIT_MERGES,
 	MAVEN_COMMANDS,
+	OPERATING_SYSTEM_COMMANDS,
 	CHAIN;
 }

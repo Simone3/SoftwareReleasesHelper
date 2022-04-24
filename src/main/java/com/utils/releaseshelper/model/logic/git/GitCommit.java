@@ -5,7 +5,7 @@ import com.utils.releaseshelper.model.logic.ValueDefinition;
 import lombok.Data;
 
 /**
- * Description of a Git commit
+ * A Git commit
  */
 @Data
 public class GitCommit {

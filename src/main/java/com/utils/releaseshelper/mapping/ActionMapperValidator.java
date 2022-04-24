@@ -14,16 +14,18 @@ import com.utils.releaseshelper.model.logic.action.DefineVariablesAction;
 import com.utils.releaseshelper.model.logic.action.GitMergesAction;
 import com.utils.releaseshelper.model.logic.action.JenkinsBuildAction;
 import com.utils.releaseshelper.model.logic.action.MavenCommandsAction;
+import com.utils.releaseshelper.model.logic.action.OperatingSystemCommandsAction;
 import com.utils.releaseshelper.model.logic.git.GitCommit;
 import com.utils.releaseshelper.model.logic.git.GitMerge;
 import com.utils.releaseshelper.model.logic.maven.MavenCommand;
+import com.utils.releaseshelper.model.logic.process.OperatingSystemCommand;
 import com.utils.releaseshelper.model.properties.ActionProperty;
 import com.utils.releaseshelper.model.properties.ActionTypeProperty;
+import com.utils.releaseshelper.model.properties.GenericCommandProperty;
 import com.utils.releaseshelper.model.properties.GitCommitProperty;
 import com.utils.releaseshelper.model.properties.GitMergeProperty;
 import com.utils.releaseshelper.model.properties.GitProperties;
 import com.utils.releaseshelper.model.properties.JenkinsProperties;
-import com.utils.releaseshelper.model.properties.MavenCommandProperty;
 import com.utils.releaseshelper.model.properties.MavenProperties;
 import com.utils.releaseshelper.utils.FileUtils;
 import com.utils.releaseshelper.utils.UrlUtils;
@@ -97,6 +99,9 @@ public class ActionMapperValidator {
 				
 			case MAVEN_COMMANDS:
 				return mapAndValidateMavenCommandsAction(actionProperty, mavenProperties);
+				
+			case OPERATING_SYSTEM_COMMANDS:
+				return mapAndValidateOperatingSystemCommandsAction(actionProperty);
 			
 			case GIT_MERGES:
 				return mapAndValidateGitMergesAction(actionProperty, gitProperties);
@@ -204,8 +209,8 @@ public class ActionMapperValidator {
 
 	private static MavenCommandsAction mapAndValidateMavenCommandsAction(ActionProperty actionProperty, MavenProperties mavenProperties) {
 		
-		String projectFolder = ValidationUtils.notBlank(actionProperty.getProjectFolder(), "Git Maven commands action does not have a project folder");
-		List<MavenCommandProperty> commandProperties = ValidationUtils.notEmpty(actionProperty.getCommands(), "Git Maven commands action does not have any command");
+		String projectFolder = ValidationUtils.notBlank(actionProperty.getProjectFolder(), "Maven commands action does not have a project folder");
+		List<GenericCommandProperty> commandProperties = actionProperty.getCommands();
 		GitCommitProperty gitCommitProperty = actionProperty.getGitCommit();
 		
 		String fullProjectFolder = FileUtils.getFullPath(mavenProperties == null ? null : mavenProperties.getBasePath(), projectFolder);
@@ -217,7 +222,7 @@ public class ActionMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Git Maven commands action has an invalid list of commands -> " + e.getMessage());
+			throw new ValidationException("Maven commands action has an invalid list of commands -> " + e.getMessage());
 		}
 		
 		GitCommit gitCommit = null;
@@ -229,13 +234,50 @@ public class ActionMapperValidator {
 			}
 			catch(Exception e) {
 				
-				throw new ValidationException("Git Maven commands action has an invalid Git commit definition -> " + e.getMessage());
+				throw new ValidationException("Maven commands action has an invalid Git commit definition -> " + e.getMessage());
 			}
 		}
 		
 		MavenCommandsAction action = new MavenCommandsAction();
 		mapAndValidateGenericAction(actionProperty, action);
 		action.setProjectFolder(fullProjectFolder);
+		action.setCommands(commands);
+		action.setGitCommit(gitCommit);
+		return action;
+	}
+
+	private static OperatingSystemCommandsAction mapAndValidateOperatingSystemCommandsAction(ActionProperty actionProperty) {
+		
+		String folder = ValidationUtils.notBlank(actionProperty.getFolder(), "Operating system commands action does not have a folder");
+		List<GenericCommandProperty> commandProperties = actionProperty.getCommands();
+		GitCommitProperty gitCommitProperty = actionProperty.getGitCommit();
+		
+		List<OperatingSystemCommand> commands = null;
+		try {
+			
+			commands = OperatingSystemMapperValidator.mapAndValidateOperatingSystemCommands(commandProperties);
+		}
+		catch(Exception e) {
+			
+			throw new ValidationException("Operating system commands action has an invalid list of commands -> " + e.getMessage());
+		}
+		
+		GitCommit gitCommit = null;
+		if(gitCommitProperty != null) {
+			
+			try {
+				
+				gitCommit = GitMapperValidator.mapAndValidateGitCommit(gitCommitProperty);
+			}
+			catch(Exception e) {
+				
+				throw new ValidationException("Operating system commands action has an invalid Git commit definition -> " + e.getMessage());
+			}
+		}
+		
+		OperatingSystemCommandsAction action = new OperatingSystemCommandsAction();
+		mapAndValidateGenericAction(actionProperty, action);
+		action.setFolder(folder);
 		action.setCommands(commands);
 		action.setGitCommit(gitCommit);
 		return action;

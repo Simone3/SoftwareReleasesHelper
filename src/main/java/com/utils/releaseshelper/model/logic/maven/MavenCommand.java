@@ -8,7 +8,7 @@ import com.utils.releaseshelper.model.logic.VariableDefinition;
 import lombok.Data;
 
 /**
- * Description of a Maven command
+ * A Maven command
  */
 @Data
 public class MavenCommand {
@@ -16,5 +16,5 @@ public class MavenCommand {
 	private ValueDefinition goals;
 	private List<VariableDefinition> arguments;
 	private boolean offline;
-	private boolean printMavenOutput;
+	private boolean suppressOutput;
 }

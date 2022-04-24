@@ -10,7 +10,7 @@ import com.utils.releaseshelper.model.config.MavenConfig;
 import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.VariableDefinition;
 import com.utils.releaseshelper.model.logic.maven.MavenCommand;
-import com.utils.releaseshelper.model.properties.MavenCommandProperty;
+import com.utils.releaseshelper.model.properties.GenericCommandProperty;
 import com.utils.releaseshelper.model.properties.MavenProperties;
 import com.utils.releaseshelper.validation.ValidationException;
 import com.utils.releaseshelper.validation.ValidationUtils;
@@ -34,7 +34,7 @@ public class MavenMapperValidator {
 		return mavenConfig;
 	}
 	
-	public static List<MavenCommand> mapAndValidateMavenCommands(List<MavenCommandProperty> mavenCommandProperties) {
+	public static List<MavenCommand> mapAndValidateMavenCommands(List<GenericCommandProperty> mavenCommandProperties) {
 		
 		ValidationUtils.notEmpty(mavenCommandProperties, "At least one Maven command should be defined");
 		
@@ -42,7 +42,7 @@ public class MavenMapperValidator {
 		
 		for(int i = 0; i < mavenCommandProperties.size(); i++) {
 
-			MavenCommandProperty mavenCommandProperty = mavenCommandProperties.get(i);
+			GenericCommandProperty mavenCommandProperty = mavenCommandProperties.get(i);
 			
 			MavenCommand mavenCommand;
 			try {
@@ -60,14 +60,14 @@ public class MavenMapperValidator {
 		return mavenCommands;
 	}
 	
-	public static MavenCommand mapAndValidateMavenCommand(MavenCommandProperty mavenCommandProperty) {
+	public static MavenCommand mapAndValidateMavenCommand(GenericCommandProperty mavenCommandProperty) {
 		
 		ValidationUtils.notNull(mavenCommandProperty, "No Maven command defined");
 		
 		String goalsProperty = mavenCommandProperty.getGoals();
 		Map<String, String> argumentsProperties = mavenCommandProperty.getArguments();
 		Boolean offline = mavenCommandProperty.getOffline();
-		Boolean printOutput = mavenCommandProperty.getPrintMavenOutput();
+		Boolean suppressOutput = mavenCommandProperty.getSuppressOutput();
 		
 		ValueDefinition goals;
 		try {
@@ -78,7 +78,6 @@ public class MavenMapperValidator {
 			
 			throw new ValidationException("Invalid Maven command goals -> " + e.getMessage());
 		}
-		
 		
 		List<VariableDefinition> arguments = null;
 		if(!CollectionUtils.isEmpty(argumentsProperties)) {
@@ -97,7 +96,7 @@ public class MavenMapperValidator {
 		mavenCommand.setGoals(goals);
 		mavenCommand.setArguments(arguments);
 		mavenCommand.setOffline(offline != null && offline);
-		mavenCommand.setPrintMavenOutput(printOutput != null && printOutput);
+		mavenCommand.setSuppressOutput(suppressOutput != null && suppressOutput);
 		return mavenCommand;
 	}
 }

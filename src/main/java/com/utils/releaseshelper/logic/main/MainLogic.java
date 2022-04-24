@@ -20,6 +20,7 @@ import com.utils.releaseshelper.model.logic.action.Action;
 import com.utils.releaseshelper.service.git.GitService;
 import com.utils.releaseshelper.service.jenkins.JenkinsService;
 import com.utils.releaseshelper.service.maven.MavenService;
+import com.utils.releaseshelper.service.process.OperatingSystemService;
 import com.utils.releaseshelper.view.CommandLineInterface;
 
 import lombok.extern.slf4j.Slf4j;
@@ -53,8 +54,9 @@ public class MainLogic extends StepLogic<MainStep> {
 		GitService gitService = new GitService(config, cli);
 		JenkinsService jenkinsService = new JenkinsService(config, cli);
 		MavenService mavenService = new MavenService(config, cli);
+		OperatingSystemService operatingSystemService = new OperatingSystemService(config, cli);
 		
-		this.actionDispatcher = new ActionDispatcher(cli, gitService, jenkinsService, mavenService);
+		this.actionDispatcher = new ActionDispatcher(cli, gitService, jenkinsService, mavenService, operatingSystemService);
 	}
 
 	public void execute() {

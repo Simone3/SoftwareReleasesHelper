@@ -62,11 +62,23 @@ action-definitions:
           generateBackupPoms: 'false'
       -
         goals: 'clean install'
-        print-maven-output: true
+        suppress-output: true
     git-commit:
       branch: 'my-branch'
       pull: true
       commit-message: 'My message with variable #[my-second-var]'
+  -
+    name: 'My Operating System Action'
+    type: 'OPERATING_SYSTEM_COMMANDS'
+    folder: '~/Desktop/other-folder'
+    commands:
+      -
+        command: 'echo "New date:" (date +%F-%T) >> date.txt'
+        suppress-output: false
+    git-commit:
+      branch: 'my-branch'
+      pull: false
+      commit-message: 'Date update'
   -
     name: 'My Chain Action'
     type: 'CHAIN'
@@ -90,11 +102,15 @@ categories:
           - 'My Define Vars Action'
           - 'My Merges Action'
           - 'My Maven Action'
+      -
+        name: 'My Third Project'
+        action-names:
+          - 'My Operating System Action'
   -
     name: 'My Second Category'
     projects:
       -
-        name: 'My Third Project'
+        name: 'My Fourth Project'
         action-names:
           - 'My Define Vars Action'
           - 'My Chain Action'

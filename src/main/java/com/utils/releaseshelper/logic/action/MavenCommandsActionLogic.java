@@ -211,7 +211,7 @@ public class MavenCommandsActionLogic extends ActionLogic<MavenCommandsAction> {
 		MavenCommandServiceModel serviceCommand = new MavenCommandServiceModel();
 		serviceCommand.setGoals(goals);
 		serviceCommand.setArguments(arguments);
-		serviceCommand.setPrintMavenOutput(command.isPrintMavenOutput());
+		serviceCommand.setSuppressOutput(command.isSuppressOutput());
 		serviceCommand.setOffline(command.isOffline());
 		return serviceCommand;
 	}

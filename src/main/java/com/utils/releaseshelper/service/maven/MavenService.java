@@ -54,15 +54,15 @@ public class MavenService implements Service {
 		String goals = command.getGoals();
 		Map<String, String> arguments = command.getArguments();
 		boolean offline = command.isOffline();
-		boolean printOutput = command.isPrintMavenOutput();
+		boolean suppressOutput = command.isSuppressOutput();
 		
-		CommandLineOutputHandler outputHandler = printOutput ? new DefaultCommandLineOutputHandler(cli) : new DummyCommandLineOutputHandler();
+		CommandLineOutputHandler outputHandler = suppressOutput ? new DummyCommandLineOutputHandler() : new DefaultCommandLineOutputHandler(cli);
 		
-		boolean commandSuccess = RetryUtils.retry(cli, "Retry " + goals + " command", "Cannot run " + goals + " command", () -> {
+		boolean commandSuccess = RetryUtils.retry(cli, "Retry command", "Cannot run command", () -> {
 			
-			cli.println("Start running %s command...", goals);
+			cli.println("Start running \"%s\" command...", goals);
 			connector.runCommand(pomFile, outputHandler, goals, arguments, offline);
-			cli.println("Command %s successfully completed!", goals);
+			cli.println("Command \"%s\" successfully completed!", goals);
 		});
 		
 		if(!commandSuccess) {

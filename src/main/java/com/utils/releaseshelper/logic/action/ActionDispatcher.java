@@ -10,9 +10,11 @@ import com.utils.releaseshelper.model.logic.action.DefineVariablesAction;
 import com.utils.releaseshelper.model.logic.action.GitMergesAction;
 import com.utils.releaseshelper.model.logic.action.JenkinsBuildAction;
 import com.utils.releaseshelper.model.logic.action.MavenCommandsAction;
+import com.utils.releaseshelper.model.logic.action.OperatingSystemCommandsAction;
 import com.utils.releaseshelper.service.git.GitService;
 import com.utils.releaseshelper.service.jenkins.JenkinsService;
 import com.utils.releaseshelper.service.maven.MavenService;
+import com.utils.releaseshelper.service.process.OperatingSystemService;
 import com.utils.releaseshelper.view.CommandLineInterface;
 
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ public class ActionDispatcher {
 	private final GitService gitService;
 	private final JenkinsService jenkinsService;
 	private final MavenService mavenService;
+	private final OperatingSystemService operatingSystemService;
 
 	public void dispatch(Action action, Map<String, String> variables) {
 		
@@ -44,6 +47,10 @@ public class ActionDispatcher {
 		else if(action instanceof MavenCommandsAction) {
 			
 			return new MavenCommandsActionLogic((MavenCommandsAction) action, variables, cli, mavenService, gitService);
+		}
+		else if(action instanceof OperatingSystemCommandsAction) {
+			
+			return new OperatingSystemCommandsActionLogic((OperatingSystemCommandsAction) action, variables, cli, operatingSystemService, gitService);
 		}
 		else if(action instanceof GitMergesAction) {
 			

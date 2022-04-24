@@ -13,8 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MavenConnectorMock implements MavenConnector {
 	
-	private static final int ERRORS = 1;
-	private int errorsCounter = 0;
+	private int errorsToThrow = 0;
+	private int thrownErrors = 0;
 	
 	@Override
 	public File getPomFile(String projectFolder) {
@@ -28,15 +28,15 @@ public class MavenConnectorMock implements MavenConnector {
 		
 		log.warn("Maven operations disabled: skipping run command {} with arguments {}", goals, arguments);
 		
-		if(ERRORS > 0) {
+		if(errorsToThrow > 0) {
 			
-			if(errorsCounter >= ERRORS) {
+			if(thrownErrors >= errorsToThrow) {
 				
-				errorsCounter = 0;
+				thrownErrors = 0;
 			}
 			else {
 				
-				errorsCounter++;
+				thrownErrors++;
 				throw new IllegalStateException("This is a mock Maven error!");
 			}
 		}

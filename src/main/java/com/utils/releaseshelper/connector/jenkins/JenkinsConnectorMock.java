@@ -10,8 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JenkinsConnectorMock implements JenkinsConnector {
 	
-	private static final int ERRORS = 1;
-	private int errorsCounter = 0;
+	private int errorsToThrow = 0;
+	private int thrownErrors = 0;
 
 	@Override
 	public String getCrumb(String crumbUrl, String username, String password) {
@@ -25,15 +25,15 @@ public class JenkinsConnectorMock implements JenkinsConnector {
 		
 		log.warn("Jenkins invocations disabled: skipping start build command with {}, {}, {}", buildUrl, username, parameters);
 		
-		if(ERRORS > 0) {
+		if(errorsToThrow > 0) {
 			
-			if(errorsCounter >= ERRORS) {
+			if(thrownErrors >= errorsToThrow) {
 				
-				errorsCounter = 0;
+				thrownErrors = 0;
 			}
 			else {
 				
-				errorsCounter++;
+				thrownErrors++;
 				throw new IllegalStateException("This is a mock Jenkins error!");
 			}
 		}

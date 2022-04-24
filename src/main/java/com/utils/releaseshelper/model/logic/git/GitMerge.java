@@ -5,7 +5,7 @@ import com.utils.releaseshelper.model.logic.ValueDefinition;
 import lombok.Data;
 
 /**
- * Description of a Git merge
+ * A Git merge
  */
 @Data
 public class GitMerge {

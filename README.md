@@ -1,4 +1,5 @@
 
+
 ## Software Releases Helper
 
 
@@ -134,7 +135,7 @@ Fields:
 	- `goals`: the goal(s) of the command, separated by a space (required), value can be [dynamic](#dynamic-value-definitions)
 	- `arguments`: key-value map of command arguments (optional), values can be [dynamic](#dynamic-value-definitions)
 	- `offline`: if `true` the command is executed in offline mode (default `false`)
-	- `print-maven-output`: if `true` the full Maven output will be printed (default `false`)
+	- `suppress-output`: if `true` the full Maven output will not be printed to screen (default `false`)
 - `gitCommit`: definition of the Git commit for any resulting change (optional)
 	- `branch`: the Git branch (required), value can be [dynamic](#dynamic-value-definitions)
 	- `commit-message`: the commit message  (required), value can be [dynamic](#dynamic-value-definitions)
@@ -151,17 +152,53 @@ Example:
     commands:
       -
         goals: 'versions:set'
+        offline: true
         arguments:
           newVersion: '#[my-second-var]'
           generateBackupPoms: 'false'
       -
         goals: 'clean install'
-        print-maven-output: true
+        suppress-output: true
     git-commit:
       branch: 'my-branch'
       pull: true
       commit-message: 'My message with variable #[my-second-var]'
 ```
+
+##### Operating System Commands Action
+It allows to run one or more generic operating system commands, optionally committing any resulting change to a Git repository.
+
+Fields:
+- `type`: `OPERATING_SYSTEM_COMMANDS` (required)
+- `name`: action name, it must be unique for all actions (required)
+- `skip-confirmation`: if `true` the util won't prompt for confirmation before running the action (default `false`)
+- `folder`: the absolute path to the folder where the commands should be run (required)
+- `commands`: the list of commands to run (at least one required)
+	- `command`: the command string (required), value can be [dynamic](#dynamic-value-definitions)
+	- `suppress-output`: if `true` the full Maven output will not be printed to screen (default `false`)
+- `gitCommit`: definition of the Git commit for any resulting change (optional)
+	- `branch`: the Git branch (required), value can be [dynamic](#dynamic-value-definitions)
+	- `commit-message`: the commit message  (required), value can be [dynamic](#dynamic-value-definitions)
+	- `pull`: if `true` the util will pull the branch before running the commands (default `false`)
+
+If a Git commit is defined, it requires a [Git configuration](#git-config).
+
+Example:
+```
+  -
+    name: 'My Operating System Action'
+    type: 'OPERATING_SYSTEM_COMMANDS'
+    folder: '~/Desktop/other-folder'
+    commands:
+      -
+        command: 'echo "New date:" (date +%F-%T) >> date.txt'
+        suppress-output: false
+    git-commit:
+      branch: 'my-branch'
+      pull: false
+      commit-message: 'Date update'
+```
+
 
 ##### Chain Action
 It allows to chain two or more actions. The advantage of doing this instead of simply placing the list of actions in a project is that a single confirmation prompt will be displayed.
@@ -294,7 +331,7 @@ maven:
 #### Extra configuration
 
 Fields:
-- `test-mode`: if `true` all connectors are mocked and therefore no Jenkins, Git or Maven operations will be actually performed (default `false`)
+- `test-mode`: if `true` all connectors are mocked and therefore no Jenkins, Git, Maven or operating system operations will be actually executed (default `false`)
 - `print-passwords`: if `true` passwords will be displayed on screen (default `false`)
 - `optional-pre-selected-category-index`: the user won't be prompted for category selection but instead taken directly to the specified index (optional)
 - `optional-pre-selected-project-indices`: the user won't be prompted for projects selection but instead taken directly to the specified index(es) (optional)
@@ -319,9 +356,9 @@ The application **entry point** is *Runner.java*, a Spring *CommandLineRunner* t
 
 The **logic layer** contains all classes that orchestrate the business logic. In particular, *MainLogic.java* implements the category and project choices and then calls the *ActionDispatcher.java* to run each project actions. The Action Dispatcher in turn invokes the implementations of *ActionLogic.java* that execute the action logic.
 
-The **service layer** is called by the logic layer for specific tasks. The *GitService.java* implements all Git business logic, the *JenkinsService.java* all the Jenkins business logic and *MavenService.java* all the Maven business logic.
+The **service layer** is called by the logic layer for specific tasks. The *GitService.java* implements all Git business logic, the *JenkinsService.java* all the Jenkins business logic, the *MavenService.java* all the Maven business logic and the *OperatingSystemService.java* all the operating system business logic.
 
-The **connector layer** is called by the service layer and has the task of actually connecting to external components. The *GitConnector.java* allows to connect to a Git repository (via *JGit*), the *JenkinsConnector.java* allows to connect to a Jenkins server (via REST APIs) and *MavenConnector.java* allows to connect to a Maven project (via *Maven Invoker*).
+The **connector layer** is called by the service layer and has the task of actually connecting to external components. The *GitConnector.java* allows to connect to a Git repository (via *JGit*), the *JenkinsConnector.java* to a Jenkins server (via REST APIs), the *MavenConnector.java* to a Maven project (via *Maven Invoker*) and the *OperatingSystemConnector.java* to the OS command line (via Java *Process*).
 
 Logic and service components all use the *CommandLineInterface.java* for **user input and output**.
 
