@@ -168,7 +168,7 @@ public class GitConnectorReal implements GitConnector {
 		
 		while(folder != null) {
 			
-			File gitFolder = new File(absoluteFolderPath + File.separator + ".git");
+			File gitFolder = new File(folder.getAbsolutePath() + File.separator + ".git");
 
 			if(gitFolder.exists() && gitFolder.isDirectory()) {
 				
