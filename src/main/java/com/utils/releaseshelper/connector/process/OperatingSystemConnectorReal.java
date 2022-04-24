@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 
+import org.apache.commons.lang3.SystemUtils;
+
 import com.utils.releaseshelper.view.output.CommandLineOutputHandler;
 
 import lombok.SneakyThrows;
@@ -35,7 +37,16 @@ public class OperatingSystemConnectorReal implements OperatingSystemConnector {
 	@SneakyThrows
 	public int runCommand(File folder, String command, CommandLineOutputHandler outputHandler) {
 
-		ProcessBuilder builder = new ProcessBuilder(command);
+		ProcessBuilder builder;
+		if(SystemUtils.IS_OS_WINDOWS) {
+
+			builder = new ProcessBuilder("cmd", "/c", command);
+		}
+		else {
+			
+			builder = new ProcessBuilder("sh", "-c", command);
+		}
+		
 		builder.directory(folder);
 
 		Process process = builder.start();

@@ -73,7 +73,7 @@ action-definitions:
     folder: '~/Desktop/other-folder'
     commands:
       -
-        command: 'echo "New date:" (date +%F-%T) >> date.txt'
+        command: 'echo "New date:" $(date +%F-%T) >> date.txt'
         suppress-output: false
     git-commit:
       branch: 'my-branch'
