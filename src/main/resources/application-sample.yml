@@ -80,6 +80,11 @@ action-definitions:
       pull: false
       commit-message: 'Date update'
   -
+    name: 'My Wait Action'
+    type: 'WAIT'
+    wait-time-milliseconds: 5000
+    manual-wait-prompt: 'Are you sure you want to proceed'
+  -
     name: 'My Chain Action'
     type: 'CHAIN'
     actions:
@@ -105,6 +110,7 @@ categories:
       -
         name: 'My Third Project'
         action-names:
+          - 'My Wait Action'
           - 'My Operating System Action'
   -
     name: 'My Second Category'

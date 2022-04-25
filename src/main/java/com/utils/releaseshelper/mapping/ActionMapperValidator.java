@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import com.utils.releaseshelper.model.logic.VariableDefinition;
@@ -15,6 +16,7 @@ import com.utils.releaseshelper.model.logic.action.GitMergesAction;
 import com.utils.releaseshelper.model.logic.action.JenkinsBuildAction;
 import com.utils.releaseshelper.model.logic.action.MavenCommandsAction;
 import com.utils.releaseshelper.model.logic.action.OperatingSystemCommandsAction;
+import com.utils.releaseshelper.model.logic.action.WaitAction;
 import com.utils.releaseshelper.model.logic.git.GitCommit;
 import com.utils.releaseshelper.model.logic.git.GitMerge;
 import com.utils.releaseshelper.model.logic.maven.MavenCommand;
@@ -108,6 +110,9 @@ public class ActionMapperValidator {
 				
 			case JENKINS_BUILD:
 				return mapAndValidateJenkinsBuildAction(actionProperty, jenkinsProperties);
+				
+			case WAIT:
+				return mapAndValidateWaitAction(actionProperty);
 				
 			case CHAIN:
 				throw new ValidationException("Chain action cannot be mapped as a single action, because of its dependency with other actions");
@@ -331,6 +336,25 @@ public class ActionMapperValidator {
 		mapAndValidateGenericAction(actionProperty, action);
 		action.setUrl(fullUrl);
 		action.setParameters(parameters);
+		return action;
+	}
+
+	private static WaitAction mapAndValidateWaitAction(ActionProperty actionProperty) {
+		
+		Integer waitTimeMilliseconds = actionProperty.getWaitTimeMilliseconds();
+		String manualWaitPrompt = actionProperty.getManualWaitPrompt();
+		
+		ValidationUtils.isTrue(waitTimeMilliseconds != null || !StringUtils.isBlank(manualWaitPrompt), "Wait action must have a wait time and/or a manual wait prompt");
+		
+		if(waitTimeMilliseconds != null) {
+			
+			ValidationUtils.positive(waitTimeMilliseconds, "Wait action has an invalid wait time");
+		}
+	
+		WaitAction action = new WaitAction();
+		mapAndValidateGenericAction(actionProperty, action);
+		action.setWaitTimeMilliseconds(waitTimeMilliseconds);
+		action.setManualWaitPrompt(manualWaitPrompt);
 		return action;
 	}
 	

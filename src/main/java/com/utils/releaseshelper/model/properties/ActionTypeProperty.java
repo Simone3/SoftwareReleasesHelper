@@ -10,5 +10,6 @@ public enum ActionTypeProperty {
 	GIT_MERGES,
 	MAVEN_COMMANDS,
 	OPERATING_SYSTEM_COMMANDS,
+	WAIT,
 	CHAIN;
 }

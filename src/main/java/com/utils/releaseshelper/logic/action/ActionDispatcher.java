@@ -11,6 +11,7 @@ import com.utils.releaseshelper.model.logic.action.GitMergesAction;
 import com.utils.releaseshelper.model.logic.action.JenkinsBuildAction;
 import com.utils.releaseshelper.model.logic.action.MavenCommandsAction;
 import com.utils.releaseshelper.model.logic.action.OperatingSystemCommandsAction;
+import com.utils.releaseshelper.model.logic.action.WaitAction;
 import com.utils.releaseshelper.service.git.GitService;
 import com.utils.releaseshelper.service.jenkins.JenkinsService;
 import com.utils.releaseshelper.service.maven.MavenService;
@@ -59,6 +60,10 @@ public class ActionDispatcher {
 		else if(action instanceof JenkinsBuildAction) {
 			
 			return new JenkinsBuildActionLogic((JenkinsBuildAction) action, variables, cli, jenkinsService);
+		}
+		else if(action instanceof WaitAction) {
+			
+			return new WaitActionLogic((WaitAction) action, variables, cli);
 		}
 		else if(action instanceof ChainAction) {
 			

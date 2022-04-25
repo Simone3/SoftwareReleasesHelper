@@ -199,6 +199,25 @@ Example:
       commit-message: 'Date update'
 ```
 
+##### Wait Action
+It allows to wait for a specified amount of time and/or a manual user input.
+
+Fields:
+- `type`: `WAIT` (required)
+- `name`: action name, it must be unique for all actions (required)
+- `wait-time-milliseconds`: amount of time in milliseconds to wait (optional)
+- `manual-wait-prompt`: message for a manual user input (optional), user options and question mark will be automatically added at the end
+
+Note: if both `wait-time-milliseconds` and `manual-wait-prompt` are specified, the action will first wait for the given amount of time and then show the prompt.
+
+Example:
+```
+  -
+    name: 'My Wait Action'
+    type: 'WAIT'
+    wait-time-milliseconds: 5000
+    manual-wait-prompt: 'Are you sure you want to proceed'
+```
 
 ##### Chain Action
 It allows to chain two or more actions. The advantage of doing this instead of simply placing the list of actions in a project is that a single confirmation prompt will be displayed.

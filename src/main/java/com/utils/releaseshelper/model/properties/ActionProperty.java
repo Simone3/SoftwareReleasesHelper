@@ -38,6 +38,10 @@ public class ActionProperty {
 	// Maven and OS commands
 	private List<GenericCommandProperty> commands;
 	
+	// Wait
+	private Integer waitTimeMilliseconds;
+	private String manualWaitPrompt;
+	
 	// Chain
 	private List<String> actions;
 }

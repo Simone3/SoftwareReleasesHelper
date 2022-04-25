@@ -62,4 +62,14 @@ public class ValidationUtils {
 		
 		return value;
 	}
+	
+	public Boolean isTrue(Boolean value, String message) {
+		
+		if(value == null || !value) {
+			
+			throw new ValidationException(message);
+		}
+		
+		return value;
+	}
 }
