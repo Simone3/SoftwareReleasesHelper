@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.utils.releaseshelper.model.config.JenkinsConfig;
@@ -21,6 +22,7 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.SneakyThrows;
+import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
 /**
@@ -66,6 +68,7 @@ public class JenkinsConnectorReal implements JenkinsConnector {
 			.uri(crumbUrl)
 			.headers(headers -> headers.setBasicAuth(username, password))
 			.retrieve()
+			.onStatus(status -> !status.is2xxSuccessful(), this::onErrorHttpStatus)
 			.bodyToMono(CrumbResponse.class)
 			.block();
 		
@@ -95,7 +98,15 @@ public class JenkinsConnectorReal implements JenkinsConnector {
 			.headers(headers -> headers.setBasicAuth(username, password))
 			.headers(headers -> headers.add("Jenkins-Crumb", crumb))
 			.retrieve()
+			.onStatus(status -> !status.is2xxSuccessful(), this::onErrorHttpStatus)
 			.bodyToMono(CrumbResponse.class)
 			.block();
+	}
+
+	private Mono<? extends Throwable> onErrorHttpStatus(ClientResponse httpResponse) {
+		
+		return httpResponse
+			.bodyToMono(String.class)
+			.map(httpResponseString -> new IllegalStateException("Error status: " + httpResponse.statusCode() + " - Body: " + httpResponseString));
 	}
 }
