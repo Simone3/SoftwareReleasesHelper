@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
+import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.VariableDefinition;
 import com.utils.releaseshelper.model.logic.action.Action;
 import com.utils.releaseshelper.model.logic.action.ChainAction;
@@ -187,9 +188,24 @@ public class ActionMapperValidator {
 		
 		String name = ValidationUtils.notBlank(actionProperty.getName(), "Action does not have a name");
 		Boolean skipConfirmation = actionProperty.getSkipConfirmation();
+		String customDescriptionProperty = actionProperty.getCustomDescription();
+		
+		ValueDefinition customDescription = null;
+		if(!StringUtils.isBlank(customDescriptionProperty)) {
+			
+			try {
+				
+				customDescription = VariablesMapperValidator.mapAndValidateValueDefinition(customDescriptionProperty);
+			}
+			catch(Exception e) {
+				
+				throw new ValidationException("Action custom description is invalid -> " + e.getMessage());
+			}
+		}
 
 		action.setName(name);
 		action.setSkipConfirmation(skipConfirmation != null && skipConfirmation);
+		action.setCustomDescription(customDescription);
 	}
 	
 	private static DefineVariablesAction mapAndValidateDefineVariablesAction(ActionProperty actionProperty) {

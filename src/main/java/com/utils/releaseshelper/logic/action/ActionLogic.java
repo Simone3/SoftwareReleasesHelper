@@ -6,6 +6,7 @@ import org.springframework.util.Assert;
 
 import com.utils.releaseshelper.logic.Logic;
 import com.utils.releaseshelper.model.logic.action.Action;
+import com.utils.releaseshelper.utils.VariablesUtils;
 import com.utils.releaseshelper.view.CommandLineInterface;
 
 /**
@@ -52,7 +53,21 @@ public abstract class ActionLogic<A extends Action> implements Logic {
 	
 	protected abstract void beforeAction();
 	
-	protected abstract void printActionDescription();
+	protected void printActionDescription() {
+		
+		if(action.getCustomDescription() == null) {
+			
+			printDefaultActionDescription();
+		}
+		else {
+			
+			String customDescription = VariablesUtils.defineValue(cli, "Custom description", action.getCustomDescription(), variables);
+			cli.println(customDescription);
+			cli.println();
+		}
+	}
+	
+	protected abstract void printDefaultActionDescription();
 	
 	protected boolean confirmRunAction() {
 		

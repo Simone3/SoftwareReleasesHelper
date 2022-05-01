@@ -29,7 +29,7 @@ public class WaitActionLogic extends ActionLogic<WaitAction> {
 	}
 
 	@Override
-	protected void printActionDescription() {
+	protected void printDefaultActionDescription() {
 		
 		// Do nothing here for now
 	}

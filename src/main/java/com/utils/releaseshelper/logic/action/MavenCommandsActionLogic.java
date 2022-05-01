@@ -50,7 +50,7 @@ public class MavenCommandsActionLogic extends ActionLogic<MavenCommandsAction> {
 	}
 
 	@Override
-	protected void printActionDescription() {
+	protected void printDefaultActionDescription() {
 		
 		String projectFolder = action.getProjectFolder();
 		List<MavenCommand> commands = action.getCommands();

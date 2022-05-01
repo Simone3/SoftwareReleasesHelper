@@ -35,7 +35,7 @@ public class GitMergesActionLogic extends ActionLogic<GitMergesAction> {
 	}
 
 	@Override
-	protected void printActionDescription() {
+	protected void printDefaultActionDescription() {
 		
 		String repositoryFolder = action.getRepositoryFolder();
 		

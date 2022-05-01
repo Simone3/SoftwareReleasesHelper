@@ -43,7 +43,7 @@ public class OperatingSystemCommandsActionLogic extends ActionLogic<OperatingSys
 	}
 
 	@Override
-	protected void printActionDescription() {
+	protected void printDefaultActionDescription() {
 		
 		String folder = action.getFolder();
 		List<OperatingSystemCommand> commands = action.getCommands();

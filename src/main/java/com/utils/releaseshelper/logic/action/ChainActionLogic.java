@@ -32,7 +32,7 @@ public class ChainActionLogic extends ActionLogic<ChainAction> {
 	}
 
 	@Override
-	protected void printActionDescription() {
+	protected void printDefaultActionDescription() {
 		
 		for(ActionLogic<?> subActionLogic: subActionsLogic) {
 			

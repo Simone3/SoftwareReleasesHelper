@@ -34,7 +34,7 @@ public class JenkinsBuildActionLogic extends ActionLogic<JenkinsBuildAction> {
 	}
 
 	@Override
-	protected void printActionDescription() {
+	protected void printDefaultActionDescription() {
 		
 		String buildUrl = action.getUrl();
 		

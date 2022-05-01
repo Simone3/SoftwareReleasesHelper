@@ -30,7 +30,7 @@ public class DefineVariablesActionLogic extends ActionLogic<DefineVariablesActio
 	}
 
 	@Override
-	protected void printActionDescription() {
+	protected void printDefaultActionDescription() {
 		
 		// Do nothing here for now
 	}

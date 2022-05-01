@@ -16,6 +16,7 @@ public class ActionProperty {
 	private String name;
 	private ActionTypeProperty type;
 	private Boolean skipConfirmation;
+	private String customDescription;
 	
 	// Define variables
 	private Map<String, String> variables;

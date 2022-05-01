@@ -74,6 +74,7 @@ Fields:
 - `type`: `JENKINS_BUILD` (required)
 - `name`: action name, it must be unique for all actions (required)
 - `skip-confirmation`: if `true` the util won't prompt for confirmation before running the action (default `false`)
+- `custom-description`: a custom description of the action (optional), value can be [dynamic](#dynamic-value-definitions), if empty a default description will be used
 - `url`: the relative Jenkins URL (required)
 - `parameters`: key-value map of build parameters (optional), values can be [dynamic](#dynamic-value-definitions) 
 
@@ -98,6 +99,7 @@ Fields:
 - `type`: `GIT_MERGES` (required)
 - `name`: action name, it must be unique for all actions (required)
 - `skip-confirmation`: if `true` the util won't prompt for confirmation before running the action (default `false`)
+- `custom-description`: a custom description of the action (optional), value can be [dynamic](#dynamic-value-definitions), if empty a default description will be used
 - `repository-folder`: the absolute or relative path to the repository folder (required)
 - `merges`: the list of merges (at least one required)
 	- `source-branch`: the source branch, values can be [dynamic](#dynamic-value-definitions) 
@@ -130,6 +132,7 @@ Fields:
 - `type`: `MAVEN_COMMANDS` (required)
 - `name`: action name, it must be unique for all actions (required)
 - `skip-confirmation`: if `true` the util won't prompt for confirmation before running the action (default `false`)
+- `custom-description`: a custom description of the action (optional), value can be [dynamic](#dynamic-value-definitions), if empty a default description will be used
 - `project-folder`: the absolute or relative path to the project folder (required)
 - `commands`: the list of commands to run (at least one required)
 	- `goals`: the goal(s) of the command, separated by a space (required), value can be [dynamic](#dynamic-value-definitions)
@@ -172,6 +175,7 @@ Fields:
 - `type`: `OPERATING_SYSTEM_COMMANDS` (required)
 - `name`: action name, it must be unique for all actions (required)
 - `skip-confirmation`: if `true` the util won't prompt for confirmation before running the action (default `false`)
+- `custom-description`: a custom description of the action (optional), value can be [dynamic](#dynamic-value-definitions), if empty a default description will be used
 - `folder`: the absolute path to the folder where the commands should be run (required)
 - `commands`: the list of commands to run (at least one required)
 	- `command`: the command string (required), value can be [dynamic](#dynamic-value-definitions)
@@ -226,6 +230,7 @@ Fields:
 - `type`: `CHAIN` (required)
 - `name`: action name, it must be unique for all actions (required)
 - `skip-confirmation`: if `true` the util won't prompt for confirmation before running the action (default `false`)
+- `custom-description`: a custom description of the action (optional), value can be [dynamic](#dynamic-value-definitions), if empty a default description will be used
 - `actions`: the list of action names to chain (at least one required)
 
 Example:
