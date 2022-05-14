@@ -13,6 +13,7 @@ import lombok.Data;
 public class MainLogicData {
 
 	private Config config;
+	private ActionFlags actionFlags;
 	private List<Category> categories;
 	private String optionalPreSelectedCategoryIndex;
 	private String optionalPreSelectedProjectIndices;

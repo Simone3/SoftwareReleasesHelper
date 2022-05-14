@@ -16,9 +16,11 @@ public abstract class Action {
 	
 	public abstract String getTypeDescription();
 
-	public abstract boolean requiresGitConfig();
+	public abstract boolean isGitAction();
 
-	public abstract boolean requiresJenkinsConfig();
+	public abstract boolean isJenkinsAction();
 
-	public abstract boolean requiresMavenConfig();
+	public abstract boolean isMavenAction();
+
+	public abstract boolean isOperatingSystemAction();
 }

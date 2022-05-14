@@ -23,19 +23,25 @@ public class DefineVariablesAction extends Action {
 	}
 
 	@Override
-	public boolean requiresGitConfig() {
+	public boolean isGitAction() {
 		
 		return false;
 	}
 
 	@Override
-	public boolean requiresJenkinsConfig() {
+	public boolean isJenkinsAction() {
 		
 		return false;
 	}
 
 	@Override
-	public boolean requiresMavenConfig() {
+	public boolean isMavenAction() {
+		
+		return false;
+	}
+
+	@Override
+	public boolean isOperatingSystemAction() {
 		
 		return false;
 	}

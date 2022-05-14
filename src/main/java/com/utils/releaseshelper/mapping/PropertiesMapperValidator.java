@@ -7,6 +7,7 @@ import com.utils.releaseshelper.model.config.Config;
 import com.utils.releaseshelper.model.config.GitConfig;
 import com.utils.releaseshelper.model.config.JenkinsConfig;
 import com.utils.releaseshelper.model.config.MavenConfig;
+import com.utils.releaseshelper.model.logic.ActionFlags;
 import com.utils.releaseshelper.model.logic.Category;
 import com.utils.releaseshelper.model.logic.MainLogicData;
 import com.utils.releaseshelper.model.logic.action.Action;
@@ -44,30 +45,32 @@ public class PropertiesMapperValidator {
 
 		List<Category> categories = CategoryMapperValidator.mapAndValidateCategories(categoriesProperties, actionDefinitions);
 		
-		boolean requiresGitConfig = false;
-		boolean requiresJenkinsConfig = false;
-		boolean requiresMavenConfig = false;
+		boolean hasGitActions = false;
+		boolean hasJenkinsActions = false;
+		boolean hasMavenActions = false;
+		boolean hasOperatingSystemActions = false;
 		for(Action actionDefinition: actionDefinitions.values()) {
 			
-			requiresGitConfig = requiresGitConfig || actionDefinition.requiresGitConfig();
-			requiresJenkinsConfig = requiresJenkinsConfig || actionDefinition.requiresJenkinsConfig();
-			requiresMavenConfig = requiresMavenConfig || actionDefinition.requiresMavenConfig();
+			hasGitActions = hasGitActions || actionDefinition.isGitAction();
+			hasJenkinsActions = hasJenkinsActions || actionDefinition.isJenkinsAction();
+			hasMavenActions = hasMavenActions || actionDefinition.isMavenAction();
+			hasOperatingSystemActions = hasOperatingSystemActions || actionDefinition.isOperatingSystemAction();
 		}
 		
 		GitConfig gitConfig = null;
-		if(requiresGitConfig) {
+		if(hasGitActions) {
 			
 			gitConfig = GitMapperValidator.mapAndValidateGitConfig(gitProperties);
 		}
 		
 		JenkinsConfig jenkinsConfig = null;
-		if(requiresJenkinsConfig) {
+		if(hasJenkinsActions) {
 			
 			jenkinsConfig = JenkinsMapperValidator.mapAndValidateJenkinsConfig(jenkinsProperties);
 		}
 		
 		MavenConfig mavenConfig = null;
-		if(requiresMavenConfig) {
+		if(hasMavenActions) {
 			
 			mavenConfig = MavenMapperValidator.mapAndValidateMavenConfig(mavenProperties);
 		}
@@ -79,9 +82,16 @@ public class PropertiesMapperValidator {
 		config.setTestMode(testMode != null && testMode);
 		config.setPrintPasswords(printPasswords != null && printPasswords);
 		
+		ActionFlags actionFlags = new ActionFlags();
+		actionFlags.setGitActions(hasGitActions);
+		actionFlags.setJenkinsActions(hasJenkinsActions);
+		actionFlags.setMavenActions(hasMavenActions);
+		actionFlags.setOperatingSystemActions(hasOperatingSystemActions);
+		
 		MainLogicData mainData = new MainLogicData();
 		mainData.setCategories(categories);
 		mainData.setConfig(config);
+		mainData.setActionFlags(actionFlags);
 		mainData.setOptionalPreSelectedCategoryIndex(optionalPreSelectedCategoryIndex);
 		mainData.setOptionalPreSelectedProjectIndices(optionalPreSelectedProjectIndices);
 		return mainData;

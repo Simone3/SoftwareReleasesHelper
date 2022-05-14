@@ -22,11 +22,11 @@ public class ChainAction extends Action {
 	}
 
 	@Override
-	public boolean requiresGitConfig() {
+	public boolean isGitAction() {
 		
 		for(Action action: actions) {
 			
-			if(action.requiresGitConfig()) {
+			if(action.isGitAction()) {
 				
 				return true;
 			}
@@ -36,11 +36,11 @@ public class ChainAction extends Action {
 	}
 
 	@Override
-	public boolean requiresJenkinsConfig() {
+	public boolean isJenkinsAction() {
 		
 		for(Action action: actions) {
 			
-			if(action.requiresJenkinsConfig()) {
+			if(action.isJenkinsAction()) {
 				
 				return true;
 			}
@@ -50,11 +50,25 @@ public class ChainAction extends Action {
 	}
 
 	@Override
-	public boolean requiresMavenConfig() {
+	public boolean isMavenAction() {
 		
 		for(Action action: actions) {
 			
-			if(action.requiresMavenConfig()) {
+			if(action.isMavenAction()) {
+				
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	@Override
+	public boolean isOperatingSystemAction() {
+		
+		for(Action action: actions) {
+			
+			if(action.isOperatingSystemAction()) {
 				
 				return true;
 			}

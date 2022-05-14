@@ -12,6 +12,7 @@ import com.utils.releaseshelper.model.config.Config;
 import com.utils.releaseshelper.model.config.GitConfig;
 import com.utils.releaseshelper.model.config.JenkinsConfig;
 import com.utils.releaseshelper.model.config.MavenConfig;
+import com.utils.releaseshelper.model.logic.ActionFlags;
 import com.utils.releaseshelper.model.logic.Category;
 import com.utils.releaseshelper.model.logic.MainLogicData;
 import com.utils.releaseshelper.model.logic.MainStep;
@@ -50,11 +51,12 @@ public class MainLogic extends StepLogic<MainStep> {
 		this.cli = cli;
 		
 		Config config = mainLogicData.getConfig();
+		ActionFlags actionFlags = mainLogicData.getActionFlags();
 		
-		GitService gitService = new GitService(config, cli);
-		JenkinsService jenkinsService = new JenkinsService(config, cli);
-		MavenService mavenService = new MavenService(config, cli);
-		OperatingSystemService operatingSystemService = new OperatingSystemService(config, cli);
+		GitService gitService = actionFlags.isGitActions() ? new GitService(config, cli) : null;
+		JenkinsService jenkinsService =  actionFlags.isJenkinsActions() ? new JenkinsService(config, cli) : null;
+		MavenService mavenService =  actionFlags.isMavenActions() ? new MavenService(config, cli) : null;
+		OperatingSystemService operatingSystemService =  actionFlags.isOperatingSystemActions() ? new OperatingSystemService(config, cli) : null;
 		
 		this.actionDispatcher = new ActionDispatcher(cli, gitService, jenkinsService, mavenService, operatingSystemService);
 	}
