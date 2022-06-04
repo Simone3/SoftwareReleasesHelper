@@ -41,8 +41,9 @@ See [application-sample.yml](https://github.com/Simone3/SoftwareReleasesHelper/b
 In the following sections, some fields can be specified with a dynamic value. They are strings that can have:
 - a purely static value (a normal string), e.g. `'sample'`
 - a value with `#[...]` placeholders that map previously defined [variables](#define-variables-action), e.g. `'Value with placeholder #[my-variable-key]'` (note: the escape character is another `#`)
-- a run-time value `'{ask-me}'`, i.e. the user will be prompted for a value. Options for this type of value are available to further define the prompt behavior:
+- a run-time value `'{ask-me}'`, i.e. the user will be prompted for a value. One or more options may be specified to further define the prompt behavior:
 	- `remove-whitespace` (e.g. `'{ask-me,remove-whitespace}'`): the user input will be stripped of all white spaces
+	- `default` (e.g. `'{ask-me,default:myDefaultValue}'`): if the user submits a whitespace-only answer, the default value will be used
 
 
 #### Actions

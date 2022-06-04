@@ -77,12 +77,23 @@ public class CommandLineInterface {
 	
 	public String getUserInput(String message, Object... args) {
 		
+		return getUserInputWithDefault(message, null, args);
+	}
+	
+	public String getUserInputWithDefault(String message, String defaultValue, Object... args) {
+		
 		String input = null;
 		
 		while(StringUtils.isBlank(input)) {
 			
 			print(formatMessage(message, args));
+			
 			input = scanner.nextLine();
+			
+			if(StringUtils.isBlank(input) && !StringUtils.isBlank(defaultValue)) {
+				
+				input = defaultValue;
+			}
 		}
 		
 		println();

@@ -23,7 +23,8 @@ import lombok.experimental.UtilityClass;
 public class VariablesMapperValidator {
 	
 	private static final String REMOVE_WHITESPACE_OPTION = "remove-whitespace";
-	private static final Pattern ASK_ME_REGEX = Pattern.compile("\\s*\\{ask-me(\\s*,.*?)?\\}\\s*");
+	private static final String DEFAULT_VALUE_OPTION = "default";
+	private static final Pattern ASK_ME_REGEX = Pattern.compile("\\s*\\{\\s*ask-me(\\s*,.*?)?\\s*\\}\\s*");
 
 	public static List<ValueDefinition> mapAndValidateValueDefinitions(List<String> valueDefinitionProperties) {
 		
@@ -64,22 +65,33 @@ public class VariablesMapperValidator {
 			actualValue = null;
 			askMe = true;
 			
+			// Check if there are "ask-me" options
 			String optionsString = askMeMatcher.group(1);
 			if(!StringUtils.isBlank(optionsString)) {
 				
+				// Multiple options are divided by commas
 				String[] options = optionsString.split(",");
 				for(int i = 1; i < options.length; i++) {
 					
-					String option = options[i].trim();
+					// Some options may have a key-value format divided by colon (just the first colon is considered)
+					String[] optionKeyValue = options[i].split(":", 2);
+					String optionKey = optionKeyValue[0].trim();
+					String optionValue = optionKeyValue.length > 1 ? optionKeyValue[1].trim() : null;
+
+					switch(optionKey) {
 					
-					switch(option) {
-					
+						// All whitespace will be removed after user prompt
 						case REMOVE_WHITESPACE_OPTION:
 							removeWhitespace = true;
 							break;
 						
+						// User will be prompted with a default value
+						case DEFAULT_VALUE_OPTION:
+							actualValue = optionValue;
+							break;
+						
 						default:
-							throw new ValidationException("Unknown \"ask-me\" option: " + option);
+							throw new ValidationException("Unknown \"ask-me\" option: " + optionKey);
 					}
 				}
 			}

@@ -28,8 +28,22 @@ public class VariablesUtils {
 		String value;
 		if(manuallyDefine) {
 			
-			String whitespaceNote = removeWhitespace ? " (all spaces will be removed)" : "";
-			value = cli.getUserInput("%s%s: ", promptPrefix, whitespaceNote);
+			String whitespaceNote = "";
+			String defaultValue = null;
+			String defaultNote = "";
+			
+			if(removeWhitespace) {
+				
+				whitespaceNote = " (all spaces will be removed)";
+			}
+			
+			if(!StringUtils.isBlank(staticValue)) {
+				
+				defaultValue = staticValue;
+				defaultNote = " [default: " + defaultValue + "]";
+			}
+			
+			value = cli.getUserInputWithDefault("%s%s%s: ", defaultValue, promptPrefix, whitespaceNote, defaultNote);
 		}
 		else {
 			

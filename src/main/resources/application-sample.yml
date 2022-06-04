@@ -43,7 +43,7 @@ action-definitions:
     merges:
       -
         source-branch: 'my-branch'
-        target-branch: '{ask-me,remove-whitespace}'
+        target-branch: '{ask-me,default:my-default-branch}'
         pull: true
       -
         source-branch: 'this-branch'
