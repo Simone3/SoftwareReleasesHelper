@@ -1,13 +1,19 @@
 
-logging:
-  level:
-    root: off
+server:
+  port: 11031
+
+#logging:
+#  level:
+#    root: off
 
 spring:
-  main:
-    web-application-type: none
+#  main:
+#    web-application-type: none
   profiles:
     active:
       - actions
       - categories
       - configuration
+  thymeleaf:
+    reactive:
+      max-chunk-size: 8192

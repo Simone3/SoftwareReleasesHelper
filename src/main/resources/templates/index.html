@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+	<head>
+
+	    <title>Software Releases Helper</title>
+	
+	    <link rel="stylesheet" th:href="@{/import/bootstrap/bootstrap.min.css}" href="../static/import/bootstrap/bootstrap.min.css"/>
+	    <link rel="stylesheet" th:href="@{/css/main.css}" href="../static/css/main.css"/>
+	
+		<script th:src="@{/js/main.js}" src="../static/js/main.js"></script>
+	
+	</head>
+	
+	
+	
+	ALL WITH SOCKETS!!!!!!!!!!!!!!!!!!!!
+	
+	
+	
+	
+	
+	<body>
+	
+<!-- 		<div>Hello World!</div> -->
+<!-- 		<p th:text="${myData}">xxx</p> -->
+		
+		<div class="container">
+		
+		    <div class="row">
+		        <div id="title">
+		            <h1>Spring WebFlux + Thymeleaf</h1>
+		        </div>
+		        <table id="allMovies" class="table table-striped">
+		            <thead>
+		            <tr>
+		                <th width="70%">Name</th>
+		                <th>Score</th>
+		            </tr>
+		            </thead>
+		            <tbody>
+		            <tr class="result" data-th-each="movie : ${movies}">
+		                <td>[[${movie.name}]]</td>
+		                <td>[[${movie.score}]]</td>
+		            </tr>
+		            </tbody>
+		        </table>
+		    </div>
+		
+		</div>
+		
+		<button onclick="doSomething()">Click me</button> 
+		
+	</body>
+	
+</html>
