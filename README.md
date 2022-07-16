@@ -75,7 +75,7 @@ Fields:
 - `type`: `JENKINS_BUILD` (required)
 - `name`: action name, it must be unique for all actions (required)
 - `skip-confirmation`: if `true` the util won't prompt for confirmation before running the action (default `false`)
-- `custom-description`: a custom description of the action (optional), value can be [dynamic](#dynamic-value-definitions), if empty a default description will be used
+- `custom-description`: a custom description of the action (optional), if empty a default description will be used
 - `url`: the relative Jenkins URL (required)
 - `parameters`: key-value map of build parameters (optional), values can be [dynamic](#dynamic-value-definitions) 
 
@@ -222,27 +222,6 @@ Example:
     type: 'WAIT'
     wait-time-milliseconds: 5000
     manual-wait-prompt: 'Are you sure you want to proceed'
-```
-
-##### Chain Action
-It allows to chain two or more actions. The advantage of doing this instead of simply placing the list of actions in a project is that a single confirmation prompt will be displayed.
-
-Fields:
-- `type`: `CHAIN` (required)
-- `name`: action name, it must be unique for all actions (required)
-- `skip-confirmation`: if `true` the util won't prompt for confirmation before running the action (default `false`)
-- `custom-description`: a custom description of the action (optional), value can be [dynamic](#dynamic-value-definitions), if empty a default description will be used
-- `actions`: the list of action names to chain (at least one required)
-
-Example:
-```
-  -
-    name: 'My Chain Action'
-    type: 'CHAIN'
-    actions:
-      - 'My Jenkins Action'
-      - 'My Merges Action'
-      - 'My Maven Action'
 ```
 
 

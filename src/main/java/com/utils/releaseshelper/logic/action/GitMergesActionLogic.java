@@ -9,7 +9,7 @@ import com.utils.releaseshelper.model.logic.git.GitMerge;
 import com.utils.releaseshelper.model.service.git.GitMergeServiceModel;
 import com.utils.releaseshelper.model.service.git.GitMergesServiceInput;
 import com.utils.releaseshelper.service.git.GitService;
-import com.utils.releaseshelper.utils.VariablesUtils;
+import com.utils.releaseshelper.utils.ValuesDefiner;
 import com.utils.releaseshelper.view.CommandLineInterface;
 
 /**
@@ -18,9 +18,6 @@ import com.utils.releaseshelper.view.CommandLineInterface;
 public class GitMergesActionLogic extends ActionLogic<GitMergesAction> {
 
 	private final GitService gitService;
-	
-	private List<String> sourceBranches = new ArrayList<>();
-	private List<String> targetBranches = new ArrayList<>();
 
 	protected GitMergesActionLogic(GitMergesAction action, Map<String, String> variables, CommandLineInterface cli, GitService gitService) {
 		
@@ -31,23 +28,33 @@ public class GitMergesActionLogic extends ActionLogic<GitMergesAction> {
 	@Override
 	protected void beforeAction() {
 		
-		defineBranches();
+		// Do nothing here for now
 	}
 
 	@Override
-	protected void printDefaultActionDescription() {
+	protected void registerValueDefinitions(ValuesDefiner valuesDefiner) {
+		
+		List<GitMerge> merges = action.getMerges();
+		for(GitMerge merge: merges) {
+			
+			valuesDefiner.addValueDefinition(merge.getSourceBranch(), "source branch");
+			valuesDefiner.addValueDefinition(merge.getTargetBranch(), "target branch");
+		}
+	}
+
+	@Override
+	protected void printActionDescription(ValuesDefiner valuesDefiner) {
 		
 		String repositoryFolder = action.getRepositoryFolder();
 		
 		cli.println("Git merges on %s:", repositoryFolder);
 		
 		List<GitMerge> merges = action.getMerges();
-		for(int i = 0; i < merges.size(); i++) {
+		for(GitMerge merge: merges) {
 			
-			GitMerge merge = merges.get(i);
 			boolean pull = merge.isPull();
-			String sourceBranch = sourceBranches.get(i);
-			String targetBranch = targetBranches.get(i);
+			String sourceBranch = valuesDefiner.getValue(merge.getSourceBranch());
+			String targetBranch = valuesDefiner.getValue(merge.getTargetBranch());
 			cli.println("  - From %s to %s (%s)", sourceBranch, targetBranch, pull ? "pulling from both branches" : "without pulling");
 		}
 		
@@ -61,9 +68,9 @@ public class GitMergesActionLogic extends ActionLogic<GitMergesAction> {
 	}
 
 	@Override
-	protected void doRunAction() {
+	protected void doRunAction(ValuesDefiner valuesDefiner) {
 		
-		GitMergesServiceInput mergesInput = mapMergesServiceInput();
+		GitMergesServiceInput mergesInput = mapMergesServiceInput(valuesDefiner);
 		gitService.merges(mergesInput);
 	}
 
@@ -72,38 +79,26 @@ public class GitMergesActionLogic extends ActionLogic<GitMergesAction> {
 		
 		// Do nothing here for now
 	}
-
-	private void defineBranches() {
-		
-		List<GitMerge> merges = action.getMerges();
-		for(int i = 0; i < merges.size(); i++) {
-			
-			GitMerge merge = merges.get(i);
-			sourceBranches.add(VariablesUtils.defineValue(cli, "Define source branch for merge at index " + i, merge.getSourceBranch(), variables));
-			targetBranches.add(VariablesUtils.defineValue(cli, "Define target branch for merge at index " + i, merge.getTargetBranch(), variables));
-		}
-	}
 	
-	private GitMergesServiceInput mapMergesServiceInput() {
+	private GitMergesServiceInput mapMergesServiceInput(ValuesDefiner valuesDefiner) {
 		
 		GitMergesServiceInput mergeInput = new GitMergesServiceInput();
 		mergeInput.setRepositoryFolder(action.getRepositoryFolder());
-		mergeInput.setMerges(mapMergeServiceModels(action.getMerges()));
+		mergeInput.setMerges(mapMergeServiceModels(valuesDefiner, action.getMerges()));
 		return mergeInput;
 	}
 
-	private List<GitMergeServiceModel> mapMergeServiceModels(List<GitMerge> merges) {
+	private List<GitMergeServiceModel> mapMergeServiceModels(ValuesDefiner valuesDefiner, List<GitMerge> merges) {
 		
 		List<GitMergeServiceModel> serviceModels = new ArrayList<>();
 		
 		for(int i = 0; i < merges.size(); i++) {
 			
 			GitMerge merge = merges.get(i);
-			String sourceBranch = sourceBranches.get(i);
-			String targetBranch = targetBranches.get(i);
+			String sourceBranch = valuesDefiner.getValue(merge.getSourceBranch());
+			String targetBranch = valuesDefiner.getValue(merge.getTargetBranch());
 			serviceModels.add(mapMergeServiceModels(merge, sourceBranch, targetBranch));
 		}
-		
 		
 		return serviceModels;
 	}

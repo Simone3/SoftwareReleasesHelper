@@ -23,7 +23,7 @@ public class VariablesUtils {
 		
 		boolean manuallyDefine = valueToDefine.isAskMe();
 		boolean removeWhitespace = valueToDefine.isRemoveWhitespace();
-		String staticValue = valueToDefine.getValue();
+		String staticValue = valueToDefine.getStaticContent();
 		
 		String value;
 		if(manuallyDefine) {
@@ -62,7 +62,7 @@ public class VariablesUtils {
 	public static String defineVariable(CommandLineInterface cli, String promptPrefix, VariableDefinition variableToDefine, Map<String, String> sourceVariables) {
 		
 		String key = variableToDefine.getKey();
-		return defineValue(cli, promptPrefix + " " + key, variableToDefine.getValue(), sourceVariables);
+		return defineValue(cli, promptPrefix + " " + key, variableToDefine.getValueDefinition(), sourceVariables);
 	}
 	
 	public static String replaceVariablePlaceholders(String sourceString, Map<String, String> variables, Map<String, String> customPlaceholders) {

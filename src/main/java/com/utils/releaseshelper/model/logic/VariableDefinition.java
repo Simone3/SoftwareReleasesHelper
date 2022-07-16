@@ -9,5 +9,5 @@ import lombok.Data;
 public class VariableDefinition {
 
 	private String key;
-	private ValueDefinition value;
+	private ValueDefinition valueDefinition;
 }

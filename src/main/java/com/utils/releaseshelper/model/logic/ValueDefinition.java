@@ -12,7 +12,8 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 public class ValueDefinition {
 
-	private String value;
+	private int id; // this is needed for putting ValueDefinitions as keys of Maps!
+	private String staticContent;
 	private boolean askMe;
 	private boolean removeWhitespace;
 }

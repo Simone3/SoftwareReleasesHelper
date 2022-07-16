@@ -8,10 +8,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
-import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.VariableDefinition;
 import com.utils.releaseshelper.model.logic.action.Action;
-import com.utils.releaseshelper.model.logic.action.ChainAction;
 import com.utils.releaseshelper.model.logic.action.DefineVariablesAction;
 import com.utils.releaseshelper.model.logic.action.GitMergesAction;
 import com.utils.releaseshelper.model.logic.action.JenkinsBuildAction;
@@ -35,7 +33,6 @@ import com.utils.releaseshelper.utils.UrlUtils;
 import com.utils.releaseshelper.validation.ValidationException;
 import com.utils.releaseshelper.validation.ValidationUtils;
 
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -50,27 +47,14 @@ public class ActionMapperValidator {
 		
 		Map<String, Action> actions = new HashMap<>();
 		
-		// Sort actions in order to put special chain actions at the end (while storing the original index for error messages)
-		List<ActionPropertyContainer> actionPropertyContainers = sortActionProperties(actionProperties);
-		
-		for(ActionPropertyContainer container: actionPropertyContainers) {
+		for(int i = 0; i < actionProperties.size(); i++) {
 			
-			int i = container.originalIndex;
-			ActionProperty actionProperty = container.actionProperty;
+			ActionProperty actionProperty = actionProperties.get(i);
 			
 			Action action;
 			try {
 				
-				if(actionProperty != null && actionProperty.getType() == ActionTypeProperty.CHAIN) {
-					
-					// Special handling for chain actions
-					action = mapAndValidateChainAction(actionProperty, actions);
-				}
-				else {
-					
-					// Standard actions mapping
-					action = mapAndValidateAction(actionProperty, gitProperties, jenkinsProperties, mavenProperties);
-				}
+				action = mapAndValidateAction(actionProperty, gitProperties, jenkinsProperties, mavenProperties);
 			}
 			catch(Exception e) {
 				
@@ -115,9 +99,6 @@ public class ActionMapperValidator {
 			case WAIT:
 				return mapAndValidateWaitAction(actionProperty);
 				
-			case CHAIN:
-				throw new ValidationException("Chain action cannot be mapped as a single action, because of its dependency with other actions");
-		
 			default:
 				throw new ValidationException("Action has an unknown type: " + type);
 		}
@@ -159,30 +140,6 @@ public class ActionMapperValidator {
 		
 		return action;
 	}
-	
-	private static List<ActionPropertyContainer> sortActionProperties(List<ActionProperty> actionProperties) {
-
-		List<ActionPropertyContainer> chainActions = new ArrayList<>();
-		List<ActionPropertyContainer> standardActions = new ArrayList<>();
-		
-		for(int i = 0; i < actionProperties.size(); i++) {
-			
-			ActionProperty actionProperty = actionProperties.get(i);
-			
-			if(actionProperty != null && actionProperty.getType() == ActionTypeProperty.CHAIN) {
-				
-				chainActions.add(new ActionPropertyContainer(i, actionProperty));
-			}
-			else {
-				
-				standardActions.add(new ActionPropertyContainer(i, actionProperty));
-			}
-		}
-		
-		standardActions.addAll(chainActions);
-		
-		return standardActions;
-	}
 
 	private static void mapAndValidateGenericAction(ActionProperty actionProperty, Action action) {
 		
@@ -190,22 +147,9 @@ public class ActionMapperValidator {
 		Boolean skipConfirmation = actionProperty.getSkipConfirmation();
 		String customDescriptionProperty = actionProperty.getCustomDescription();
 		
-		ValueDefinition customDescription = null;
-		if(!StringUtils.isBlank(customDescriptionProperty)) {
-			
-			try {
-				
-				customDescription = VariablesMapperValidator.mapAndValidateValueDefinition(customDescriptionProperty);
-			}
-			catch(Exception e) {
-				
-				throw new ValidationException("Action custom description is invalid -> " + e.getMessage());
-			}
-		}
-
 		action.setName(name);
 		action.setSkipConfirmation(skipConfirmation != null && skipConfirmation);
-		action.setCustomDescription(customDescription);
+		action.setCustomDescription(customDescriptionProperty);
 	}
 	
 	private static DefineVariablesAction mapAndValidateDefineVariablesAction(ActionProperty actionProperty) {
@@ -372,37 +316,5 @@ public class ActionMapperValidator {
 		action.setWaitTimeMilliseconds(waitTimeMilliseconds);
 		action.setManualWaitPrompt(manualWaitPrompt);
 		return action;
-	}
-	
-	private static ChainAction mapAndValidateChainAction(ActionProperty actionProperty, Map<String, Action> allActions) {
-
-		List<String> actionIds = ValidationUtils.notEmpty(actionProperty.getActions(), "Chain action does not have a list of sub-actions");
-		
-		List<Action> actions = new ArrayList<>();
-		for(String actionId: actionIds) {
-			
-			Action subAction = allActions.get(actionId);
-			if(subAction == null) {
-				
-				throw new ValidationException("Sub-action " + actionId + " of the chain action does not exit");
-			}
-			if(subAction instanceof ChainAction) {
-				
-				throw new ValidationException("Sub-action " + actionId + " of the chain action cannot be a chain action itself");
-			}
-			actions.add(subAction);
-		}
-		
-		ChainAction action = new ChainAction();
-		mapAndValidateGenericAction(actionProperty, action);
-		action.setActions(actions);
-		return action;
-	}
-	
-	@RequiredArgsConstructor
-	private static class ActionPropertyContainer {
-		
-		private final int originalIndex;
-		private final ActionProperty actionProperty;
 	}
 }

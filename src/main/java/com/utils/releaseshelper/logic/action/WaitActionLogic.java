@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import com.utils.releaseshelper.model.logic.action.WaitAction;
+import com.utils.releaseshelper.utils.ValuesDefiner;
 import com.utils.releaseshelper.view.CommandLineInterface;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,13 +30,19 @@ public class WaitActionLogic extends ActionLogic<WaitAction> {
 	}
 
 	@Override
-	protected void printDefaultActionDescription() {
+	protected void registerValueDefinitions(ValuesDefiner valuesDefiner) {
 		
 		// Do nothing here for now
 	}
 
 	@Override
-	protected void doRunAction() {
+	protected void printActionDescription(ValuesDefiner valuesDefiner) {
+		
+		// Do nothing here for now
+	}
+
+	@Override
+	protected void doRunAction(ValuesDefiner valuesDefiner) {
 		
 		sleep();
 		prompt();

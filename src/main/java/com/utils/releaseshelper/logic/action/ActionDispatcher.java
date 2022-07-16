@@ -1,11 +1,8 @@
 package com.utils.releaseshelper.logic.action;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import com.utils.releaseshelper.model.logic.action.Action;
-import com.utils.releaseshelper.model.logic.action.ChainAction;
 import com.utils.releaseshelper.model.logic.action.DefineVariablesAction;
 import com.utils.releaseshelper.model.logic.action.GitMergesAction;
 import com.utils.releaseshelper.model.logic.action.JenkinsBuildAction;
@@ -65,26 +62,9 @@ public class ActionDispatcher {
 			
 			return new WaitActionLogic((WaitAction) action, variables, cli);
 		}
-		else if(action instanceof ChainAction) {
-			
-			return new ChainActionLogic((ChainAction) action, variables, cli, getChainActionSubActionsLogic((ChainAction) action, variables));
-		}
 		else {
 			
 			throw new IllegalStateException("Unrecognized action " + action);
 		}
-	}
-
-	private List<ActionLogic<?>> getChainActionSubActionsLogic(ChainAction action, Map<String, String> variables) {
-		
-		List<ActionLogic<?>> subActionsLogic = new ArrayList<>();
-		
-		// This hopefully does not have cycles because we passed validation!
-		for(Action subAction: action.getActions()) {
-			
-			subActionsLogic.add(getActionLogic(subAction, variables));
-		}
-		
-		return subActionsLogic;
 	}
 }

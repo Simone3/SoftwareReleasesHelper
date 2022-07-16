@@ -1,6 +1,7 @@
 package com.utils.releaseshelper.mapping;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,49 +23,49 @@ class VariablesMapperValidatorTest {
 	void testVariableDefinitionStatic() {
 		
 		ValueDefinition result = VariablesMapperValidator.mapAndValidateValueDefinition("sample");
-		assertEquals(new ValueDefinition("sample", false, false), result);
+		assertValueDefinitionEquals("sample", false, false, result);
 	}
 
 	@Test
 	void testVariableDefinitionAskMe() {
 		
 		ValueDefinition result = VariablesMapperValidator.mapAndValidateValueDefinition("{ask-me}");
-		assertEquals(new ValueDefinition(null, true, false), result);
+		assertValueDefinitionEquals(null, true, false, result);
 	}
 
 	@Test
 	void testVariableDefinitionAskMeRemoveWhitespace() {
 		
 		ValueDefinition result = VariablesMapperValidator.mapAndValidateValueDefinition("{ask-me,remove-whitespace}");
-		assertEquals(new ValueDefinition(null, true, true), result);
+		assertValueDefinitionEquals(null, true, true, result);
 	}
 
 	@Test
 	void testVariableDefinitionAskMeRemoveDefault() {
 		
 		ValueDefinition result = VariablesMapperValidator.mapAndValidateValueDefinition("{ask-me,default:myDefaultValue}");
-		assertEquals(new ValueDefinition("myDefaultValue", true, false), result);
+		assertValueDefinitionEquals("myDefaultValue", true, false, result);
 	}
 
 	@Test
 	void testVariableDefinitionAskMeRemoveWhitespaceDefault() {
 		
 		ValueDefinition result = VariablesMapperValidator.mapAndValidateValueDefinition("{ask-me,default:myDefaultValue,remove-whitespace}");
-		assertEquals(new ValueDefinition("myDefaultValue", true, true), result);
+		assertValueDefinitionEquals("myDefaultValue", true, true, result);
 	}
 
 	@Test
 	void testVariableDefinitionAskMeRemoveWhitespaceMultipleColons() {
 		
 		ValueDefinition result = VariablesMapperValidator.mapAndValidateValueDefinition("{ask-me,default:myDefaultValue:with:extra:colons,remove-whitespace:useless-value}");
-		assertEquals(new ValueDefinition("myDefaultValue:with:extra:colons", true, true), result);
+		assertValueDefinitionEquals("myDefaultValue:with:extra:colons", true, true, result);
 	}
 
 	@Test
 	void testVariableDefinitionAskMeRemoveWhitespaceTrim() {
 		
 		ValueDefinition result = VariablesMapperValidator.mapAndValidateValueDefinition("  { ask-me , remove-whitespace , default : myDefaultValue }   ");
-		assertEquals(new ValueDefinition("myDefaultValue", true, true), result);
+		assertValueDefinitionEquals("myDefaultValue", true, true, result);
 	}
 
 	@Test
@@ -74,5 +75,12 @@ class VariablesMapperValidatorTest {
 			
 			VariablesMapperValidator.mapAndValidateValueDefinition("{ask-me,default:myDefaultValue,unknownOption:something}");
 		});
+	}
+	
+	private void assertValueDefinitionEquals(String expectedStaticContent, boolean expectedAskMe, boolean expectedRemoveWhitespace, ValueDefinition actual) {
+		
+		assertEquals(expectedStaticContent, actual.getStaticContent());
+		assertEquals(expectedAskMe, actual.isAskMe());
+		assertEquals(expectedRemoveWhitespace, actual.isRemoveWhitespace());
 	}
 }

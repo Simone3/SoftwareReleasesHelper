@@ -1,15 +1,14 @@
 package com.utils.releaseshelper.logic.action;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.utils.releaseshelper.model.logic.VariableDefinition;
 import com.utils.releaseshelper.model.logic.action.JenkinsBuildAction;
 import com.utils.releaseshelper.model.service.jenkins.JenkinsBuildServiceInput;
 import com.utils.releaseshelper.service.jenkins.JenkinsService;
-import com.utils.releaseshelper.utils.VariablesUtils;
+import com.utils.releaseshelper.utils.ValuesDefiner;
 import com.utils.releaseshelper.view.CommandLineInterface;
 
 /**
@@ -18,8 +17,6 @@ import com.utils.releaseshelper.view.CommandLineInterface;
 public class JenkinsBuildActionLogic extends ActionLogic<JenkinsBuildAction> {
 	
 	private final JenkinsService jenkinsService;
-	
-	private Map<String, String> buildParams;
 
 	protected JenkinsBuildActionLogic(JenkinsBuildAction action, Map<String, String> variables, CommandLineInterface cli, JenkinsService jenkinsService) {
 		
@@ -30,24 +27,35 @@ public class JenkinsBuildActionLogic extends ActionLogic<JenkinsBuildAction> {
 	@Override
 	protected void beforeAction() {
 		
-		defineParams();
+		// Do nothing here for now
 	}
 
 	@Override
-	protected void printDefaultActionDescription() {
+	protected void registerValueDefinitions(ValuesDefiner valuesDefiner) {
+		
+		List<VariableDefinition> parameters = action.getParameters();
+		for(VariableDefinition parameter: parameters) {
+			
+			valuesDefiner.addValueDefinition(parameter.getValueDefinition(), parameter.getKey() + " argument");
+		}
+	}
+
+	@Override
+	protected void printActionDescription(ValuesDefiner valuesDefiner) {
 		
 		String buildUrl = action.getUrl();
 		
-		if(buildParams.isEmpty()) {
+		List<VariableDefinition> parameters = action.getParameters();
+		if(parameters.isEmpty()) {
 			
 			cli.println("Jenkins build %s without parameters", buildUrl);
 		}
 		else {
 		
 			cli.println("Jenkins build %s with parameters:", buildUrl);
-			for(Entry<String, String> paramEntry: buildParams.entrySet()) {
+			for(VariableDefinition parameter: parameters) {
 				
-				cli.println("  - %s: %s", paramEntry.getKey(), paramEntry.getValue());
+				cli.println("  - %s: %s", parameter.getKey(), valuesDefiner.getValue(parameter.getValueDefinition()));
 			}
 		}
 		
@@ -61,9 +69,9 @@ public class JenkinsBuildActionLogic extends ActionLogic<JenkinsBuildAction> {
 	}
 
 	@Override
-	protected void doRunAction() {
+	protected void doRunAction(ValuesDefiner valuesDefiner) {
 		
-		JenkinsBuildServiceInput buildInput = mapBuildServiceInput();
+		JenkinsBuildServiceInput buildInput = mapBuildServiceInput(valuesDefiner);
 		jenkinsService.startBuild(buildInput);
 	}
 
@@ -72,20 +80,14 @@ public class JenkinsBuildActionLogic extends ActionLogic<JenkinsBuildAction> {
 		
 		// Do nothing here for now
 	}
-
-	private void defineParams() {
-		
-		buildParams = new LinkedHashMap<>();
-		
-		List<VariableDefinition> parameters = action.getParameters();
-		for(VariableDefinition parameter: parameters) {
-			
-			String value = VariablesUtils.defineVariable(cli, "Define Jenkins build parameter", parameter, variables);
-			buildParams.put(parameter.getKey(), value);
-		}
-	}
 	
-	private JenkinsBuildServiceInput mapBuildServiceInput() {
+	private JenkinsBuildServiceInput mapBuildServiceInput(ValuesDefiner valuesDefiner) {
+		
+		Map<String, String> buildParams = new HashMap<>();
+		for(VariableDefinition parameter: action.getParameters()) {
+			
+			buildParams.put(parameter.getKey(), valuesDefiner.getValue(parameter.getValueDefinition()));
+		}
 		
 		JenkinsBuildServiceInput input = new JenkinsBuildServiceInput();
 		input.setUrl(action.getUrl());

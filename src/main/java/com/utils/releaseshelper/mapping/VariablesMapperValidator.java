@@ -22,6 +22,8 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class VariablesMapperValidator {
 	
+	private static int valueDefinitionCurrentId = 0;
+	
 	private static final String REMOVE_WHITESPACE_OPTION = "remove-whitespace";
 	private static final String DEFAULT_VALUE_OPTION = "default";
 	private static final Pattern ASK_ME_REGEX = Pattern.compile("\\s*\\{\\s*ask-me(\\s*,.*?)?\\s*\\}\\s*");
@@ -102,9 +104,13 @@ public class VariablesMapperValidator {
 		}
 
 		ValueDefinition valueDefinition = new ValueDefinition();
-		valueDefinition.setValue(actualValue);
+		valueDefinition.setId(valueDefinitionCurrentId);
+		valueDefinition.setStaticContent(actualValue);
 		valueDefinition.setAskMe(askMe);
-		valueDefinition.setRemoveWhitespace(removeWhitespace);		
+		valueDefinition.setRemoveWhitespace(removeWhitespace);	
+		
+		valueDefinitionCurrentId++;
+		
 		return valueDefinition;
 	}
 
@@ -142,7 +148,7 @@ public class VariablesMapperValidator {
 		
 		VariableDefinition variableDefinition = new VariableDefinition();
 		variableDefinition.setKey(variableKey);
-		variableDefinition.setValue(variableValue);
+		variableDefinition.setValueDefinition(variableValue);
 		return variableDefinition;
 	}
 }

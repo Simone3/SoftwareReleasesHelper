@@ -1,7 +1,5 @@
 package com.utils.releaseshelper.model.logic.action;
 
-import com.utils.releaseshelper.model.logic.ValueDefinition;
-
 import lombok.Data;
 
 /**
@@ -12,7 +10,7 @@ public abstract class Action {
 	
 	private String name;
 	private boolean skipConfirmation;
-	private ValueDefinition customDescription;
+	private String customDescription;
 	
 	public abstract String getTypeDescription();
 

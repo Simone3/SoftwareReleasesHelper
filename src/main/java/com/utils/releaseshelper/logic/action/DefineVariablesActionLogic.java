@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.utils.releaseshelper.model.logic.VariableDefinition;
 import com.utils.releaseshelper.model.logic.action.DefineVariablesAction;
+import com.utils.releaseshelper.utils.ValuesDefiner;
 import com.utils.releaseshelper.utils.VariablesUtils;
 import com.utils.releaseshelper.view.CommandLineInterface;
 
@@ -30,13 +31,19 @@ public class DefineVariablesActionLogic extends ActionLogic<DefineVariablesActio
 	}
 
 	@Override
-	protected void printDefaultActionDescription() {
+	protected void registerValueDefinitions(ValuesDefiner valuesDefiner) {
 		
 		// Do nothing here for now
 	}
 
 	@Override
-	protected void doRunAction() {
+	protected void printActionDescription(ValuesDefiner valuesDefiner) {
+		
+		// Do nothing here for now
+	}
+
+	@Override
+	protected void doRunAction(ValuesDefiner valuesDefiner) {
 		
 		// Do nothing here for now
 	}
