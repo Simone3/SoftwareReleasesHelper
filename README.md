@@ -245,7 +245,7 @@ Example:
 Procedures are made of steps. Each step is detailed in the following sections.
 
 
-#### Run Actions Step
+##### Run Actions Step
 It allows to run one or more actions.
 
 Fields:
@@ -263,7 +263,7 @@ Example:
           - 'My Operating System Action'
 ```
 
-#### Pick Projects Step
+##### Pick Projects Step
 It allows to pick one or more projects from a list, to be used in subsequent [Run Actions For Each Project Steps](#run-actions-for-each-project-step).
 
 Fields:
@@ -282,7 +282,7 @@ Example:
           - 'project3'
 ```
 
-#### Run Actions For Each Project Step
+##### Run Actions For Each Project Step
 It allows to run one or more actions for each of the projects that were selected by the user in a preceding [Pick Projects Step](#pick-projects-step). All projects are run in sequence: first all actions for the first project are run, then all actions for the second project, etc.
 
 Fields:
