@@ -1,14 +1,9 @@
 package com.utils.releaseshelper.mapping;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.utils.releaseshelper.model.config.GitConfig;
 import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.git.GitCommit;
-import com.utils.releaseshelper.model.logic.git.GitMerge;
 import com.utils.releaseshelper.model.properties.GitCommitProperty;
-import com.utils.releaseshelper.model.properties.GitMergeProperty;
 import com.utils.releaseshelper.model.properties.GitProperties;
 import com.utils.releaseshelper.validation.ValidationException;
 import com.utils.releaseshelper.validation.ValidationUtils;
@@ -36,62 +31,6 @@ public class GitMapperValidator {
 		gitConfig.setMergeMessage(mergeMessage);
 		gitConfig.setTimeoutMilliseconds(timeoutMilliseconds);
 		return gitConfig;
-	}
-
-	public static List<GitMerge> mapAndValidateGitMerges(List<GitMergeProperty> mergesProperties) {
-		
-		ValidationUtils.notEmpty(mergesProperties, "At least one merge should be defined");
-		
-		List<GitMerge> merges = new ArrayList<>();
-		
-		for(int i = 0; i < mergesProperties.size(); i++) {
-			
-			GitMergeProperty mergeProperty = mergesProperties.get(i);
-			
-			try {
-				
-				merges.add(mapAndValidateGitMerge(mergeProperty));
-			}
-			catch(Exception e) {
-				
-				throw new ValidationException("Invalid merge at index " + i + " -> " + e.getMessage());
-			}
-		}
-		
-		return merges;
-	}
-	
-	public static GitMerge mapAndValidateGitMerge(GitMergeProperty mergeProperty) {
-
-		String sourceBranchProperty = mergeProperty.getSourceBranch();
-		String targetBranchProperty = mergeProperty.getTargetBranch();
-		Boolean pull = mergeProperty.getPull();
-		
-		ValueDefinition sourceBranch;
-		try {
-			
-			sourceBranch = VariablesMapperValidator.mapAndValidateValueDefinition(sourceBranchProperty);
-		}
-		catch(Exception e) {
-			
-			throw new ValidationException("Invalid merge source branch -> " + e.getMessage());
-		}
-		
-		ValueDefinition targetBranch;
-		try {
-			
-			targetBranch = VariablesMapperValidator.mapAndValidateValueDefinition(targetBranchProperty);
-		}
-		catch(Exception e) {
-			
-			throw new ValidationException("Invalid merge target branch -> " + e.getMessage());
-		}
-		
-		GitMerge merge = new GitMerge();
-		merge.setPull(pull != null && pull);
-		merge.setSourceBranch(sourceBranch);
-		merge.setTargetBranch(targetBranch);
-		return merge;
 	}
 	
 	public static GitCommit mapAndValidateGitCommit(GitCommitProperty commitProperty) {

@@ -19,7 +19,6 @@ public class Properties {
 	private JenkinsProperties jenkins;
 	private MavenProperties maven;
 	private List<ActionProperty> actionDefinitions;
-	private List<CategoryProperty> categories;
-	private String optionalPreSelectedCategoryIndex;
-	private String optionalPreSelectedProjectIndices;
+	private List<ProcedureProperty> procedures;
+	private String optionalPreSelectedProcedureName;
 }

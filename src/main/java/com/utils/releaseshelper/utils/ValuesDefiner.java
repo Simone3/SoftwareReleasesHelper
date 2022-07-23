@@ -68,7 +68,7 @@ public class ValuesDefiner {
 			
 			ValueResult result = valuesMap.get(valueDefinition);
 			
-			String prompt = "Define value " + result.getAskMeId() + "(" + result.getNickname() + ")";
+			String prompt = "Define value " + result.getAskMeId() + " (" + result.getNickname() + ")";
 			String value = VariablesUtils.defineValue(cli, prompt, valueDefinition, sourceVariables);
 			
 			result.setProcessed(true);

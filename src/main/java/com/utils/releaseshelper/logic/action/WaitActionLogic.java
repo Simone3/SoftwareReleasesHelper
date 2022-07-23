@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WaitActionLogic extends ActionLogic<WaitAction> {
 
-	protected WaitActionLogic(WaitAction action, Map<String, String> variables, CommandLineInterface cli) {
+	public WaitActionLogic(WaitAction action, Map<String, String> variables, CommandLineInterface cli) {
 		
 		super(action, variables, cli);
 	}
@@ -74,6 +74,7 @@ public class WaitActionLogic extends ActionLogic<WaitAction> {
 			try {
 				
 				Thread.sleep(waitMs);
+				cli.println();
 			}
 			catch(InterruptedException e) {
 				

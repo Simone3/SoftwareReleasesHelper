@@ -18,7 +18,7 @@ public class JenkinsBuildActionLogic extends ActionLogic<JenkinsBuildAction> {
 	
 	private final JenkinsService jenkinsService;
 
-	protected JenkinsBuildActionLogic(JenkinsBuildAction action, Map<String, String> variables, CommandLineInterface cli, JenkinsService jenkinsService) {
+	public JenkinsBuildActionLogic(JenkinsBuildAction action, Map<String, String> variables, CommandLineInterface cli, JenkinsService jenkinsService) {
 		
 		super(action, variables, cli);
 		this.jenkinsService = jenkinsService;
@@ -32,6 +32,8 @@ public class JenkinsBuildActionLogic extends ActionLogic<JenkinsBuildAction> {
 
 	@Override
 	protected void registerValueDefinitions(ValuesDefiner valuesDefiner) {
+
+		valuesDefiner.addValueDefinition(action.getUrl(), "build URL");
 		
 		List<VariableDefinition> parameters = action.getParameters();
 		for(VariableDefinition parameter: parameters) {
@@ -43,7 +45,7 @@ public class JenkinsBuildActionLogic extends ActionLogic<JenkinsBuildAction> {
 	@Override
 	protected void printActionDescription(ValuesDefiner valuesDefiner) {
 		
-		String buildUrl = action.getUrl();
+		String buildUrl = valuesDefiner.getValue(action.getUrl());
 		
 		List<VariableDefinition> parameters = action.getParameters();
 		if(parameters.isEmpty()) {
@@ -83,6 +85,8 @@ public class JenkinsBuildActionLogic extends ActionLogic<JenkinsBuildAction> {
 	
 	private JenkinsBuildServiceInput mapBuildServiceInput(ValuesDefiner valuesDefiner) {
 		
+		String buildUrl = valuesDefiner.getValue(action.getUrl());
+		
 		Map<String, String> buildParams = new HashMap<>();
 		for(VariableDefinition parameter: action.getParameters()) {
 			
@@ -90,7 +94,7 @@ public class JenkinsBuildActionLogic extends ActionLogic<JenkinsBuildAction> {
 		}
 		
 		JenkinsBuildServiceInput input = new JenkinsBuildServiceInput();
-		input.setUrl(action.getUrl());
+		input.setUrl(buildUrl);
 		input.setParameters(buildParams);
 		return input;
 	}

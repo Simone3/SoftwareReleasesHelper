@@ -8,6 +8,7 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import com.utils.releaseshelper.model.view.SelectOption;
 
@@ -75,18 +76,24 @@ public class CommandLineInterface {
 		println("[ERROR] " + error, args);
 	}
 	
-	public String getUserInput(String message, Object... args) {
+	public String getUserInput(String message) {
 		
-		return getUserInputWithDefault(message, null, args);
+		return getUserInput(message, ":", null);
 	}
 	
-	public String getUserInputWithDefault(String message, String defaultValue, Object... args) {
+	public String getUserInput(String message, String lastCharacter, String defaultValue) {
 		
 		String input = null;
 		
 		while(StringUtils.isBlank(input)) {
 			
-			print(formatMessage(message, args));
+			String defaultMessage = "";
+			if(!StringUtils.isBlank(defaultValue)) {
+				
+				defaultMessage = " [default: " + defaultValue + "]";
+			}
+			
+			print(message + defaultMessage + lastCharacter + " ");
 			
 			input = scanner.nextLine();
 			
@@ -103,13 +110,13 @@ public class CommandLineInterface {
 		return input.trim();
 	}
 	
-	public boolean askUserConfirmation(String message, Object... args) {
+	public boolean askUserConfirmation(String message) {
 		
 		String confirm = null;
 		
 		while(!INPUT_YES.equalsIgnoreCase(confirm) && !INPUT_NO.equalsIgnoreCase(confirm)) {
 			
-			confirm = getUserInput(formatMessage(message, args) + " (" + INPUT_YES + "/" + INPUT_NO + ")? ");
+			confirm = getUserInput(message + " (" + INPUT_YES + "/" + INPUT_NO + ")", "?", null);
 		}
 		
 		return INPUT_YES.equalsIgnoreCase(confirm);
@@ -117,22 +124,22 @@ public class CommandLineInterface {
 	
 	public <T extends SelectOption> T askUserSelection(String message, List<T> options) {
 		
-		return askUserSelection(message, options, null);
+		return askUserSelection(message, options, null, false);
 	}
 	
-	public <T extends SelectOption> T askUserSelection(String message, List<T> options, String optionalPreFilledSelection) {
+	public <T extends SelectOption> T askUserSelection(String message, List<T> options, String defaultSelection, boolean forceDefaultSelection) {
 		
-		return handleUserSelection(message, options, optionalPreFilledSelection, false, false).get(0);
+		return handleUserSelection(message, options, defaultSelection, forceDefaultSelection, false, false).get(0);
 	}
 	
 	public <T extends SelectOption> List<T> askUserSelectionMultiple(String message, List<T> options) {
 		
-		return askUserSelectionMultiple(message, options, false, null);
+		return askUserSelectionMultiple(message, options, false, null, false);
 	}
 	
-	public <T extends SelectOption> List<T> askUserSelectionMultiple(String message, List<T> options, boolean allowAllSymbol, String optionalPreFilledSelection) {
+	public <T extends SelectOption> List<T> askUserSelectionMultiple(String message, List<T> options, boolean allowAllSymbol, String defaultSelection, boolean forceDefaultSelection) {
 		
-		return handleUserSelection(message, options, optionalPreFilledSelection, true, allowAllSymbol);
+		return handleUserSelection(message, options, defaultSelection, forceDefaultSelection, true, allowAllSymbol);
 	}
 	
 	public void startIdentationGroup(String groupTitle, Object... args) {
@@ -157,7 +164,7 @@ public class CommandLineInterface {
 		currentIndentation = "";
 	}
 	
-	private String formatMessage(String message, Object... args) {
+	public String formatMessage(String message, Object... args) {
 		
 		if(args == null || args.length == 0) {
 			
@@ -169,15 +176,20 @@ public class CommandLineInterface {
 		}
 	}
 	
-	private <T extends SelectOption> List<T> handleUserSelection(String message, List<T> options, String optionalPreFilledSelection, boolean multiple, boolean allowAllSymbol) {
+	private <T extends SelectOption> List<T> handleUserSelection(String message, List<T> options, String defaultSelection, boolean forceDefaultSelection, boolean multiple, boolean allowAllSymbol) {
 		
-		if(options == null || options.isEmpty()) {
+		if(CollectionUtils.isEmpty(options)) {
 			
 			throw new IllegalStateException("Unexpected empty options list!");
 		}
-		else if(!StringUtils.isBlank(optionalPreFilledSelection)) {
+		else if(forceDefaultSelection) {
 			
-			return forcePreFilledOptionSelection(message, options, optionalPreFilledSelection, multiple, allowAllSymbol);
+			if(StringUtils.isBlank(defaultSelection)) {
+				
+				throw new IllegalStateException("Force default selection but no default value was provided!");
+			}
+			
+			return forcePreFilledOptionSelection(message, options, defaultSelection, multiple, allowAllSymbol);
 		}
 		else if(options.size() == 1) {
 			
@@ -185,22 +197,22 @@ public class CommandLineInterface {
 		}
 		else {
 			
-			return promptOptionSelection(message, options, multiple, allowAllSymbol);
+			return promptOptionSelection(message, options, defaultSelection, multiple, allowAllSymbol);
 		}
 	}
 	
-	private <T extends SelectOption> List<T> forcePreFilledOptionSelection(String message, List<T> options, String optionalPreFilledSelection, boolean multiple, boolean allowAllSymbol) {
+	private <T extends SelectOption> List<T> forcePreFilledOptionSelection(String message, List<T> options, String defaultSelection, boolean multiple, boolean allowAllSymbol) {
 		
 		try {
 			
-			optionalPreFilledSelection = optionalPreFilledSelection.trim();
+			defaultSelection = defaultSelection.trim();
 
-			println(message + ": pre-filled selection is \"" + optionalPreFilledSelection + "\"");
-			return parseSelectedOptions(optionalPreFilledSelection, options, multiple, allowAllSymbol);
+			println(message + ": pre-filled selection is \"" + defaultSelection + "\"");
+			return parseSelectedOptions(defaultSelection, options, multiple, allowAllSymbol);
 		}
 		catch(Exception e) {
 			
-			throw new IllegalStateException(message + ": invalid pre-filled selection \"" + optionalPreFilledSelection + "\"");
+			throw new IllegalStateException(message + ": invalid pre-filled selection \"" + defaultSelection + "\"");
 		}
 	}
 	
@@ -213,7 +225,7 @@ public class CommandLineInterface {
 		return List.of(onlyOption);
 	}
 
-	private <T extends SelectOption> List<T> promptOptionSelection(String message, List<T> options, boolean multiple, boolean allowAllSymbol) {
+	private <T extends SelectOption> List<T> promptOptionSelection(String message, List<T> options, String defaultSelection, boolean multiple, boolean allowAllSymbol) {
 		
 		int size = options.size();
 		
@@ -222,22 +234,22 @@ public class CommandLineInterface {
 			
 			println("  " + (i + 1) + ". " + options.get(i).getOptionName());
 		}
-		
+
 		String promptMessage;
 		if(multiple) {
 			
 			String allMessage = allowAllSymbol ? ", " + INPUT_ALL + " for all" : "";
-			promptMessage = "Pick one or more options (1-" + size + ", comma separated" + allMessage + "): ";
+			promptMessage = "Pick one or more options (1-" + size + ", comma separated" + allMessage + ")";
 		}
 		else {
 			
-			promptMessage = "Pick one option (1-" + size + "): ";
+			promptMessage = "Pick one option (1-" + size + ")";
 		}
 
 		List<T> pickedOptions = null;
 		while(pickedOptions == null) {
 		
-			String selectionString = getUserInput(promptMessage);
+			String selectionString = getUserInput(promptMessage, ":", defaultSelection);
 			
 			try {
 			

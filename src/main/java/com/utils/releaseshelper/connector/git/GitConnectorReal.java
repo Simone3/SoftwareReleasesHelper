@@ -1,9 +1,9 @@
 package com.utils.releaseshelper.connector.git;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
@@ -71,15 +71,15 @@ public class GitConnectorReal implements GitConnector {
 		}
 		
 		List<Ref> localBranches = gitRepository.getHandler().branchList().call();
-		Map<String, Void> branchesMap = new HashMap<>();
+		Set<String> branchesSet = new HashSet<>();
 		for(Ref localBranch: localBranches) {
 			
-			branchesMap.put(Repository.shortenRefName(localBranch.getName()), null);
+			branchesSet.add(Repository.shortenRefName(localBranch.getName()));
 		}
 	
 		for(String branch: branches) {
 			
-			if(!branchesMap.containsKey(branch)) {
+			if(!branchesSet.contains(branch)) {
 				
 				throw new IllegalStateException("Branch " + branch + " does not exist in local branches");
 			}

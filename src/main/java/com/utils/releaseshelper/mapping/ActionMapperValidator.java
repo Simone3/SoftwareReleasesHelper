@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
+import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.VariableDefinition;
 import com.utils.releaseshelper.model.logic.action.Action;
 import com.utils.releaseshelper.model.logic.action.DefineVariablesAction;
@@ -17,14 +18,12 @@ import com.utils.releaseshelper.model.logic.action.MavenCommandsAction;
 import com.utils.releaseshelper.model.logic.action.OperatingSystemCommandsAction;
 import com.utils.releaseshelper.model.logic.action.WaitAction;
 import com.utils.releaseshelper.model.logic.git.GitCommit;
-import com.utils.releaseshelper.model.logic.git.GitMerge;
 import com.utils.releaseshelper.model.logic.maven.MavenCommand;
 import com.utils.releaseshelper.model.logic.process.OperatingSystemCommand;
 import com.utils.releaseshelper.model.properties.ActionProperty;
 import com.utils.releaseshelper.model.properties.ActionTypeProperty;
 import com.utils.releaseshelper.model.properties.GenericCommandProperty;
 import com.utils.releaseshelper.model.properties.GitCommitProperty;
-import com.utils.releaseshelper.model.properties.GitMergeProperty;
 import com.utils.releaseshelper.model.properties.GitProperties;
 import com.utils.releaseshelper.model.properties.JenkinsProperties;
 import com.utils.releaseshelper.model.properties.MavenProperties;
@@ -136,7 +135,7 @@ public class ActionMapperValidator {
 		
 		Action action = actionDefinitions.get(actionName);
 		
-		ValidationUtils.notNull(action, "No action defined for name " + actionName);
+		ValidationUtils.notNull(action, "No action defined for name \"" + actionName + "\"");
 		
 		return action;
 	}
@@ -174,11 +173,9 @@ public class ActionMapperValidator {
 
 	private static MavenCommandsAction mapAndValidateMavenCommandsAction(ActionProperty actionProperty, MavenProperties mavenProperties) {
 		
-		String projectFolder = ValidationUtils.notBlank(actionProperty.getProjectFolder(), "Maven commands action does not have a project folder");
+		String projectFolderProperty = ValidationUtils.notBlank(actionProperty.getProjectFolder(), "Maven commands action does not have a project folder");
 		List<GenericCommandProperty> commandProperties = actionProperty.getCommands();
 		GitCommitProperty gitCommitProperty = actionProperty.getGitCommit();
-		
-		String fullProjectFolder = FileUtils.getFullPath(mavenProperties == null ? null : mavenProperties.getBasePath(), projectFolder);
 		
 		List<MavenCommand> commands = null;
 		try {
@@ -203,9 +200,21 @@ public class ActionMapperValidator {
 			}
 		}
 		
+		String fullProjectFolder = FileUtils.getFullPath(mavenProperties == null ? null : mavenProperties.getBasePath(), projectFolderProperty);
+		
+		ValueDefinition projectFolder;
+		try {
+			
+			projectFolder = VariablesMapperValidator.mapAndValidateValueDefinition(fullProjectFolder);
+		}
+		catch(Exception e) {
+			
+			throw new ValidationException("Maven commands action has an invalid project folder -> " + e.getMessage());
+		}
+		
 		MavenCommandsAction action = new MavenCommandsAction();
 		mapAndValidateGenericAction(actionProperty, action);
-		action.setProjectFolder(fullProjectFolder);
+		action.setProjectFolder(projectFolder);
 		action.setCommands(commands);
 		action.setGitCommit(gitCommit);
 		return action;
@@ -213,7 +222,7 @@ public class ActionMapperValidator {
 
 	private static OperatingSystemCommandsAction mapAndValidateOperatingSystemCommandsAction(ActionProperty actionProperty) {
 		
-		String folder = ValidationUtils.notBlank(actionProperty.getFolder(), "Operating system commands action does not have a folder");
+		String folderProperty = ValidationUtils.notBlank(actionProperty.getFolder(), "Operating system commands action does not have a folder");
 		List<GenericCommandProperty> commandProperties = actionProperty.getCommands();
 		GitCommitProperty gitCommitProperty = actionProperty.getGitCommit();
 		
@@ -240,6 +249,16 @@ public class ActionMapperValidator {
 			}
 		}
 		
+		ValueDefinition folder;
+		try {
+			
+			folder = VariablesMapperValidator.mapAndValidateValueDefinition(folderProperty);
+		}
+		catch(Exception e) {
+			
+			throw new ValidationException("Operating system commands action has an invalid folder -> " + e.getMessage());
+		}
+		
 		OperatingSystemCommandsAction action = new OperatingSystemCommandsAction();
 		mapAndValidateGenericAction(actionProperty, action);
 		action.setFolder(folder);
@@ -250,31 +269,43 @@ public class ActionMapperValidator {
 
 	private static GitMergesAction mapAndValidateGitMergesAction(ActionProperty actionProperty, GitProperties gitProperties) {
 		
-		String repositoryFolder = ValidationUtils.notBlank(actionProperty.getRepositoryFolder(), "Git merges action does not have a repository folder");
-		List<GitMergeProperty> mergesProperties = actionProperty.getMerges();
+		String repositoryFolderProperty = ValidationUtils.notBlank(actionProperty.getRepositoryFolder(), "Git merges action does not have a repository folder");
+		String mergesProperties = ValidationUtils.notBlank(actionProperty.getMerges(), "Git merges action does not have a merge definition");
+		Boolean pullProperty = actionProperty.getPull();
 		
-		List<GitMerge> merges;
+		ValueDefinition merges;
 		try {
 			
-			merges = GitMapperValidator.mapAndValidateGitMerges(mergesProperties);
+			merges = VariablesMapperValidator.mapAndValidateValueDefinition(mergesProperties);
 		}
 		catch(Exception e) {
 			
 			throw new ValidationException("Git merges action has an invalid list of merges -> " + e.getMessage());
 		}
 		
-		String fullRepositoryFolder = FileUtils.getFullPath(gitProperties == null ? null : gitProperties.getBasePath(), repositoryFolder);
+		String fullRepositoryFolder = FileUtils.getFullPath(gitProperties == null ? null : gitProperties.getBasePath(), repositoryFolderProperty);
+		
+		ValueDefinition repositoryFolder;
+		try {
+			
+			repositoryFolder = VariablesMapperValidator.mapAndValidateValueDefinition(fullRepositoryFolder);
+		}
+		catch(Exception e) {
+			
+			throw new ValidationException("Git merges action has an invalid repository folder -> " + e.getMessage());
+		}
 
 		GitMergesAction action = new GitMergesAction();
 		mapAndValidateGenericAction(actionProperty, action);
-		action.setRepositoryFolder(fullRepositoryFolder);
+		action.setRepositoryFolder(repositoryFolder);
 		action.setMerges(merges);
+		action.setPull(pullProperty != null && pullProperty);
 		return action;
 	}
 
 	private static JenkinsBuildAction mapAndValidateJenkinsBuildAction(ActionProperty actionProperty, JenkinsProperties jenkinsProperties) {
 		
-		String url = ValidationUtils.notBlank(actionProperty.getUrl(), "Jenkins build action does not have a URL");
+		String urlProperty = ValidationUtils.notBlank(actionProperty.getUrl(), "Jenkins build action does not have a URL");
 		Map<String, String> parametersProperties = actionProperty.getParameters();
 		
 		List<VariableDefinition> parameters = null;
@@ -290,11 +321,21 @@ public class ActionMapperValidator {
 			}
 		}
 		
-		String fullUrl = UrlUtils.getFullUrl(jenkinsProperties.getBaseUrl(), url);
+		String fullUrl = UrlUtils.getFullUrl(jenkinsProperties.getBaseUrl(), urlProperty);
+		
+		ValueDefinition url;
+		try {
+			
+			url = VariablesMapperValidator.mapAndValidateValueDefinition(fullUrl);
+		}
+		catch(Exception e) {
+			
+			throw new ValidationException("Jenkins build action has an invalid project folder -> " + e.getMessage());
+		}
 		
 		JenkinsBuildAction action = new JenkinsBuildAction();
 		mapAndValidateGenericAction(actionProperty, action);
-		action.setUrl(fullUrl);
+		action.setUrl(url);
 		action.setParameters(parameters);
 		return action;
 	}

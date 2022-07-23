@@ -201,10 +201,7 @@ public class GitService implements Service {
 	
 	private boolean checkBranchesExistWithRetries(GitRepository git, String... branches) {
 		
-		boolean branchesExist = RetryUtils.retry(cli, "Retry checking local branches", "Error checking branches", () -> {
-			
-			connector.checkBranchesExist(git, branches);
-		});
+		boolean branchesExist = RetryUtils.retry(cli, "Retry checking local branches", "Error checking branches", () -> connector.checkBranchesExist(git, branches));
 		
 		if(!branchesExist) {
 			

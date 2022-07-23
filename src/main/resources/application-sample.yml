@@ -1,5 +1,5 @@
 
-test-mode: true
+test-mode: true # set to false after testing the configuration
 print-passwords: false
 
 git:
@@ -22,33 +22,30 @@ maven:
   base-path: '~/Desktop/example'
 
 action-definitions:
+
   -
     name: 'My Define Vars Action'
     type: 'DEFINE_VARIABLES'
     variables:
       my-first-var: 'my-fixed-value'
-      my-second-var: '{ask-me}'
+      my-second-var: '{ ask-me, remove-whitespace }'
+
   -
     name: 'My Jenkins Action'
     type: 'JENKINS_BUILD'
-    url: '/my-build/url'
+    url: '/job/my-build/job/#[project-name]/buildWithParameters'
     parameters:
       my-first-param: 'sample'
-      my-second-param: '{ask-me,remove-whitespace}'
-      my-third-param: 'Variable replacement #[my-first-var]'
+      my-second-param: '{ ask-me, remove-whitespace }'
+      my-third-param: 'value with variable replacement #[my-first-var]'
+
   -
     name: 'My Merges Action'
     type: 'GIT_MERGES'
     repository-folder: '/my-folder'
-    merges:
-      -
-        source-branch: 'my-branch'
-        target-branch: '{ask-me,default:my-default-branch}'
-        pull: true
-      -
-        source-branch: 'this-branch'
-        target-branch: 'that-branch'
-        pull: false
+    merges: '{ ask-me, select-options: branch1 -> branch2 | branch3 -> branch4 -> branch5 }'
+    pull: true
+
   -
     name: 'My Maven Action'
     type: 'MAVEN_COMMANDS'
@@ -67,6 +64,7 @@ action-definitions:
       branch: 'my-branch'
       pull: true
       commit-message: 'My message with variable #[my-second-var]'
+
   -
     name: 'My Operating System Action'
     type: 'OPERATING_SYSTEM_COMMANDS'
@@ -79,36 +77,45 @@ action-definitions:
       branch: 'my-branch'
       pull: false
       commit-message: 'Date update'
+
   -
     name: 'My Wait Action'
     type: 'WAIT'
     wait-time-milliseconds: 5000
     manual-wait-prompt: 'Are you sure you want to proceed'
 
-categories:
+procedures:
+
   -
-    name: 'My First Category'
-    projects:
+    name: 'My First Procedure'
+    steps:
       -
-        name: 'My First Project'
-        action-names:
+        type: 'RUN_ACTIONS'
+        actions:
           - 'My Define Vars Action'
-          - 'My Jenkins Action'
       -
-        name: 'My Second Project'
-        action-names:
+        type: 'PICK_PROJECTS'
+        custom-prompt: 'Pick one or more projects for Jenkins build'
+        projects:
+          - 'project1'
+          - 'project2'
+          - 'project3'
+      -
+        type: 'RUN_ACTIONS_FOR_EACH_PROJECT'
+        project-actions:
+          project2:
+            - 'My Jenkins Action'
+          default:
+            - 'My Jenkins Action'
+            - 'My Wait Action'
+
+  -
+    name: 'My Second Procedure'
+    steps:
+      -
+        type: 'RUN_ACTIONS'
+        actions:
           - 'My Define Vars Action'
           - 'My Merges Action'
           - 'My Maven Action'
-      -
-        name: 'My Third Project'
-        action-names:
-          - 'My Wait Action'
           - 'My Operating System Action'
-  -
-    name: 'My Second Category'
-    projects:
-      -
-        name: 'My Fourth Project'
-        action-names:
-          - 'My Define Vars Action'

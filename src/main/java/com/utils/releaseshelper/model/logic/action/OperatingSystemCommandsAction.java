@@ -2,6 +2,7 @@ package com.utils.releaseshelper.model.logic.action;
 
 import java.util.List;
 
+import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.git.GitCommit;
 import com.utils.releaseshelper.model.logic.process.OperatingSystemCommand;
 
@@ -15,7 +16,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class OperatingSystemCommandsAction extends Action {
 
-	private String folder;
+	private ValueDefinition folder;
 	private List<OperatingSystemCommand> commands;
 	private GitCommit gitCommit;
 

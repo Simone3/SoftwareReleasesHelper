@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.utils.releaseshelper.model.logic.action.GitMergesAction;
-import com.utils.releaseshelper.model.logic.git.GitMerge;
 import com.utils.releaseshelper.model.service.git.GitMergeServiceModel;
 import com.utils.releaseshelper.model.service.git.GitMergesServiceInput;
 import com.utils.releaseshelper.service.git.GitService;
@@ -19,7 +20,7 @@ public class GitMergesActionLogic extends ActionLogic<GitMergesAction> {
 
 	private final GitService gitService;
 
-	protected GitMergesActionLogic(GitMergesAction action, Map<String, String> variables, CommandLineInterface cli, GitService gitService) {
+	public GitMergesActionLogic(GitMergesAction action, Map<String, String> variables, CommandLineInterface cli, GitService gitService) {
 		
 		super(action, variables, cli);
 		this.gitService = gitService;
@@ -34,29 +35,20 @@ public class GitMergesActionLogic extends ActionLogic<GitMergesAction> {
 	@Override
 	protected void registerValueDefinitions(ValuesDefiner valuesDefiner) {
 		
-		List<GitMerge> merges = action.getMerges();
-		for(GitMerge merge: merges) {
-			
-			valuesDefiner.addValueDefinition(merge.getSourceBranch(), "source branch");
-			valuesDefiner.addValueDefinition(merge.getTargetBranch(), "target branch");
-		}
+		valuesDefiner.addValueDefinition(action.getRepositoryFolder(), "repository folder");
+		valuesDefiner.addValueDefinition(action.getMerges(), "merge definitions");
 	}
 
 	@Override
 	protected void printActionDescription(ValuesDefiner valuesDefiner) {
 		
-		String repositoryFolder = action.getRepositoryFolder();
+		String repositoryFolder = valuesDefiner.getValue(action.getRepositoryFolder());
+		boolean pull = action.isPull();
+		String merges = valuesDefiner.getValue(action.getMerges());
 		
 		cli.println("Git merges on %s:", repositoryFolder);
-		
-		List<GitMerge> merges = action.getMerges();
-		for(GitMerge merge: merges) {
-			
-			boolean pull = merge.isPull();
-			String sourceBranch = valuesDefiner.getValue(merge.getSourceBranch());
-			String targetBranch = valuesDefiner.getValue(merge.getTargetBranch());
-			cli.println("  - From %s to %s (%s)", sourceBranch, targetBranch, pull ? "pulling from both branches" : "without pulling");
-		}
+		cli.println("%s", merges);
+		cli.println("(%s)", pull ? "pulling from all branches" : "without pulling");
 		
 		cli.println();
 	}
@@ -81,34 +73,49 @@ public class GitMergesActionLogic extends ActionLogic<GitMergesAction> {
 	}
 	
 	private GitMergesServiceInput mapMergesServiceInput(ValuesDefiner valuesDefiner) {
+
+		String repositoryFolder = valuesDefiner.getValue(action.getRepositoryFolder());
+		String merges = valuesDefiner.getValue(action.getMerges());
 		
 		GitMergesServiceInput mergeInput = new GitMergesServiceInput();
-		mergeInput.setRepositoryFolder(action.getRepositoryFolder());
-		mergeInput.setMerges(mapMergeServiceModels(valuesDefiner, action.getMerges()));
+		mergeInput.setRepositoryFolder(repositoryFolder);
+		mergeInput.setMerges(mapMergeServiceModels(action.isPull(), merges));
 		return mergeInput;
 	}
 
-	private List<GitMergeServiceModel> mapMergeServiceModels(ValuesDefiner valuesDefiner, List<GitMerge> merges) {
+	private List<GitMergeServiceModel> mapMergeServiceModels(boolean pull, String mergesString) {
 		
 		List<GitMergeServiceModel> serviceModels = new ArrayList<>();
 		
-		for(int i = 0; i < merges.size(); i++) {
+		String[] mergesStrings = mergesString.split(";");
+		
+		for(String mergeString: mergesStrings) {
 			
-			GitMerge merge = merges.get(i);
-			String sourceBranch = valuesDefiner.getValue(merge.getSourceBranch());
-			String targetBranch = valuesDefiner.getValue(merge.getTargetBranch());
-			serviceModels.add(mapMergeServiceModels(merge, sourceBranch, targetBranch));
-		}
-		
-		return serviceModels;
-	}
+			String[] mergeBranches = mergeString.split("->");
+			
+			if(mergeBranches.length < 2) {
+				
+				throw new IllegalStateException("Not enough branches defined in: " + mergeString);
+			}
+			
+			for(int i = 1; i < mergeBranches.length; i++) {
+				
+				String sourceBranch = mergeBranches[i - 1];
+				String targetBranch = mergeBranches[i];
 
-	private GitMergeServiceModel mapMergeServiceModels(GitMerge merge, String sourceBranch, String targetBranch) {
-		
-		GitMergeServiceModel model = new GitMergeServiceModel();
-		model.setPull(merge.isPull());
-		model.setSourceBranch(sourceBranch);
-		model.setTargetBranch(targetBranch);
-		return model;
+				if(StringUtils.isBlank(sourceBranch) || StringUtils.isBlank(targetBranch)) {
+					
+					throw new IllegalStateException("Empty branch in: " + mergeString);
+				}
+				
+				GitMergeServiceModel serviceModel = new GitMergeServiceModel();
+				serviceModel.setPull(pull);
+				serviceModel.setSourceBranch(sourceBranch.trim());
+				serviceModel.setTargetBranch(targetBranch.trim());
+				serviceModels.add(serviceModel);
+			}
+		}
+
+		return serviceModels;
 	}
 }

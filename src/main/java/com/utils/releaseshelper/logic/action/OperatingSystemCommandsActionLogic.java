@@ -24,7 +24,7 @@ public class OperatingSystemCommandsActionLogic extends ActionLogic<OperatingSys
 	private final OperatingSystemService operatingSystemService;
 	private final GitService gitService;
 
-	protected OperatingSystemCommandsActionLogic(OperatingSystemCommandsAction action, Map<String, String> variables, CommandLineInterface cli, OperatingSystemService operatingSystemService, GitService gitService) {
+	public OperatingSystemCommandsActionLogic(OperatingSystemCommandsAction action, Map<String, String> variables, CommandLineInterface cli, OperatingSystemService operatingSystemService, GitService gitService) {
 		
 		super(action, variables, cli);
 		this.operatingSystemService = operatingSystemService;
@@ -39,6 +39,8 @@ public class OperatingSystemCommandsActionLogic extends ActionLogic<OperatingSys
 
 	@Override
 	protected void registerValueDefinitions(ValuesDefiner valuesDefiner) {
+
+		valuesDefiner.addValueDefinition(action.getFolder(), "folder");
 		
 		List<OperatingSystemCommand> commands = action.getCommands();
 		for(OperatingSystemCommand command: commands) {
@@ -57,7 +59,8 @@ public class OperatingSystemCommandsActionLogic extends ActionLogic<OperatingSys
 	@Override
 	protected void printActionDescription(ValuesDefiner valuesDefiner) {
 		
-		String folder = action.getFolder();
+		String folder = valuesDefiner.getValue(action.getFolder());
+		
 		List<OperatingSystemCommand> commands = action.getCommands();
 		
 		cli.println("Run these commands in %s:", folder);
@@ -116,18 +119,23 @@ public class OperatingSystemCommandsActionLogic extends ActionLogic<OperatingSys
 	}
 	
 	private GitPrepareForChangesServiceInput mapGitPrepareForChangesInput(ValuesDefiner valuesDefiner) {
+
+		String folder = valuesDefiner.getValue(action.getFolder());
+		String branch = valuesDefiner.getValue(action.getGitCommit().getBranch());
 		
 		GitPrepareForChangesServiceInput input = new GitPrepareForChangesServiceInput();
-		input.setRepositoryFolder(action.getFolder());
-		input.setBranch(valuesDefiner.getValue(action.getGitCommit().getBranch()));
+		input.setRepositoryFolder(folder);
+		input.setBranch(branch);
 		input.setPull(action.getGitCommit().isPull());
 		return input;
 	}
 
 	private OperatingSystemRunCommandServiceInput mapOperatingSystemCommandsInput(ValuesDefiner valuesDefiner) {
+
+		String folder = valuesDefiner.getValue(action.getFolder());
 		
 		OperatingSystemRunCommandServiceInput input = new OperatingSystemRunCommandServiceInput();
-		input.setFolder(action.getFolder());
+		input.setFolder(folder);
 		input.setCommands(mapOperatingSystemCommandModels(valuesDefiner));
 		return input;
 	}
@@ -157,11 +165,14 @@ public class OperatingSystemCommandsActionLogic extends ActionLogic<OperatingSys
 	}
 
 	private GitCommitChangesServiceInput mapGitCommitChangesInput(ValuesDefiner valuesDefiner, String originalBranch) {
+
+		String folder = valuesDefiner.getValue(action.getFolder());
+		String message = valuesDefiner.getValue(action.getGitCommit().getMessage());
 		
 		GitCommitChangesServiceInput input = new GitCommitChangesServiceInput();
-		input.setRepositoryFolder(action.getFolder());
+		input.setRepositoryFolder(folder);
 		input.setOriginalBranch(originalBranch);
-		input.setMessage(valuesDefiner.getValue(action.getGitCommit().getMessage()));
+		input.setMessage(message);
 		return input;
 	}
 }

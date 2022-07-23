@@ -113,6 +113,7 @@ public abstract class ActionLogic<A extends Action> implements Logic {
 			valuesDefiner.defineAskMeValues();
 			
 			cli.println("All values defined! Final action recap:");
+			cli.println();
 			
 			printCustomActionDescription(valuesDefiner);
 		}

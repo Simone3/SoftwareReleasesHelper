@@ -53,9 +53,31 @@ public class ValidationUtils {
 		return value;
 	}
 	
-	public Integer positive(Integer value, String message) {
+	public int integer(String value, String message) {
+		
+		try {
+			
+			return Integer.parseInt(value);
+		}
+		catch(Exception e) {
+			
+			throw new ValidationException(message);
+		}
+	}
+	
+	public int positive(Integer value, String message) {
 		
 		if(value == null || value <= 0) {
+			
+			throw new ValidationException(message);
+		}
+		
+		return value;
+	}
+	
+	public int range(Integer value, Integer from, Integer to, String message) {
+		
+		if(value == null || (from != null && value < from) || (to != null && value > to)) {
 			
 			throw new ValidationException(message);
 		}

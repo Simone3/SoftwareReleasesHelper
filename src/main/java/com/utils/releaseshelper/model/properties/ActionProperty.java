@@ -23,7 +23,8 @@ public class ActionProperty {
 	
 	// Git
 	private String repositoryFolder;
-	private List<GitMergeProperty> merges;
+	private String merges;
+	private Boolean pull;
 	private GitCommitProperty gitCommit;
 
 	// Jenkins

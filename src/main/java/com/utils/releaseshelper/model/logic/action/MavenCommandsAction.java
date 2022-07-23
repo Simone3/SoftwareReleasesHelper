@@ -2,6 +2,7 @@ package com.utils.releaseshelper.model.logic.action;
 
 import java.util.List;
 
+import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.git.GitCommit;
 import com.utils.releaseshelper.model.logic.maven.MavenCommand;
 
@@ -15,7 +16,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class MavenCommandsAction extends Action {
 
-	private String projectFolder;
+	private ValueDefinition projectFolder;
 	private List<MavenCommand> commands;
 	private GitCommit gitCommit;
 

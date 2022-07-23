@@ -79,7 +79,7 @@ public class MavenMapperValidator {
 			throw new ValidationException("Invalid Maven command goals -> " + e.getMessage());
 		}
 		
-		List<VariableDefinition> arguments = null;
+		List<VariableDefinition> arguments = new ArrayList<>();
 		if(!CollectionUtils.isEmpty(argumentsProperties)) {
 			
 			try {

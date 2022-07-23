@@ -13,7 +13,7 @@ import com.utils.releaseshelper.view.CommandLineInterface;
  */
 public class DefineVariablesActionLogic extends ActionLogic<DefineVariablesAction> {
 
-	protected DefineVariablesActionLogic(DefineVariablesAction action, Map<String, String> variables, CommandLineInterface cli) {
+	public DefineVariablesActionLogic(DefineVariablesAction action, Map<String, String> variables, CommandLineInterface cli) {
 		
 		super(action, variables, cli);
 	}

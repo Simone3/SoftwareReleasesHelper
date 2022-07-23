@@ -3,19 +3,21 @@ package com.utils.releaseshelper.mapping;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.utils.releaseshelper.model.config.Config;
 import com.utils.releaseshelper.model.config.GitConfig;
 import com.utils.releaseshelper.model.config.JenkinsConfig;
 import com.utils.releaseshelper.model.config.MavenConfig;
 import com.utils.releaseshelper.model.logic.ActionFlags;
-import com.utils.releaseshelper.model.logic.Category;
 import com.utils.releaseshelper.model.logic.MainLogicData;
+import com.utils.releaseshelper.model.logic.Procedure;
 import com.utils.releaseshelper.model.logic.action.Action;
 import com.utils.releaseshelper.model.properties.ActionProperty;
-import com.utils.releaseshelper.model.properties.CategoryProperty;
 import com.utils.releaseshelper.model.properties.GitProperties;
 import com.utils.releaseshelper.model.properties.JenkinsProperties;
 import com.utils.releaseshelper.model.properties.MavenProperties;
+import com.utils.releaseshelper.model.properties.ProcedureProperty;
 import com.utils.releaseshelper.model.properties.Properties;
 import com.utils.releaseshelper.validation.ValidationUtils;
 
@@ -34,16 +36,17 @@ public class PropertiesMapperValidator {
 		Boolean testMode = properties.getTestMode();
 		Boolean printPasswords = properties.getPrintPasswords();
 		List<ActionProperty> actionDefinitionsProperties = properties.getActionDefinitions();
-		List<CategoryProperty> categoriesProperties = properties.getCategories();
+		List<ProcedureProperty> proceduresProperties = properties.getProcedures();
 		GitProperties gitProperties = properties.getGit();
 		JenkinsProperties jenkinsProperties = properties.getJenkins();
 		MavenProperties mavenProperties = properties.getMaven();
-		String optionalPreSelectedCategoryIndex = properties.getOptionalPreSelectedCategoryIndex();
-		String optionalPreSelectedProjectIndices = properties.getOptionalPreSelectedProjectIndices();
+		String optionalPreSelectedProcedureNameProperty = properties.getOptionalPreSelectedProcedureName();
 		
 		Map<String, Action> actionDefinitions = ActionMapperValidator.mapAndValidateActions(actionDefinitionsProperties, gitProperties, jenkinsProperties, mavenProperties);
 
-		List<Category> categories = CategoryMapperValidator.mapAndValidateCategories(categoriesProperties, actionDefinitions);
+		List<Procedure> procedures = ProcedureMapperValidator.mapAndValidateProcedures(proceduresProperties, actionDefinitions);
+		
+		String optionalPreSelectedProcedureIndex = mapPreSelectedProcedure(optionalPreSelectedProcedureNameProperty, procedures);
 		
 		boolean hasGitActions = false;
 		boolean hasJenkinsActions = false;
@@ -89,11 +92,33 @@ public class PropertiesMapperValidator {
 		actionFlags.setOperatingSystemActions(hasOperatingSystemActions);
 		
 		MainLogicData mainData = new MainLogicData();
-		mainData.setCategories(categories);
+		mainData.setProcedures(procedures);
 		mainData.setConfig(config);
 		mainData.setActionFlags(actionFlags);
-		mainData.setOptionalPreSelectedCategoryIndex(optionalPreSelectedCategoryIndex);
-		mainData.setOptionalPreSelectedProjectIndices(optionalPreSelectedProjectIndices);
+		mainData.setOptionalPreSelectedProcedureIndex(optionalPreSelectedProcedureIndex);
+
 		return mainData;
+	}
+	private static String mapPreSelectedProcedure(String optionalPreSelectedProcedureNameProperty, List<Procedure> procedures) {
+		
+		String optionalPreSelectedProcedureIndex = null;
+		
+		if(!StringUtils.isBlank(optionalPreSelectedProcedureNameProperty)) {
+			
+			for(int i = 0; i < procedures.size(); i++) {
+				
+				Procedure procedure = procedures.get(i);
+				
+				if(optionalPreSelectedProcedureNameProperty.equals(procedure.getName())) {
+					
+					optionalPreSelectedProcedureIndex = String.valueOf(i);
+					break;
+				}
+			}
+			
+			ValidationUtils.notBlank(optionalPreSelectedProcedureIndex, "Pre-selected procedure name does not match any procedure");
+		}
+		
+		return optionalPreSelectedProcedureIndex;
 	}
 }

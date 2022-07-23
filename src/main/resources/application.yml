@@ -9,5 +9,5 @@ spring:
   profiles:
     active:
       - actions
-      - categories
+      - procedures
       - configuration

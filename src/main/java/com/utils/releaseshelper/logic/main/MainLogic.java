@@ -1,27 +1,20 @@
 package com.utils.releaseshelper.logic.main;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.utils.releaseshelper.logic.action.ActionDispatcher;
-import com.utils.releaseshelper.logic.common.StepLogic;
+import com.utils.releaseshelper.logic.common.StateLogic;
+import com.utils.releaseshelper.logic.procedure.ProcedureLogic;
 import com.utils.releaseshelper.model.config.Config;
 import com.utils.releaseshelper.model.config.GitConfig;
 import com.utils.releaseshelper.model.config.JenkinsConfig;
 import com.utils.releaseshelper.model.config.MavenConfig;
 import com.utils.releaseshelper.model.logic.ActionFlags;
-import com.utils.releaseshelper.model.logic.Category;
 import com.utils.releaseshelper.model.logic.MainLogicData;
-import com.utils.releaseshelper.model.logic.MainStep;
-import com.utils.releaseshelper.model.logic.Project;
-import com.utils.releaseshelper.model.logic.action.Action;
-import com.utils.releaseshelper.service.git.GitService;
-import com.utils.releaseshelper.service.jenkins.JenkinsService;
-import com.utils.releaseshelper.service.maven.MavenService;
-import com.utils.releaseshelper.service.process.OperatingSystemService;
+import com.utils.releaseshelper.model.logic.MainState;
+import com.utils.releaseshelper.model.logic.Procedure;
+import com.utils.releaseshelper.service.main.MainService;
 import com.utils.releaseshelper.view.CommandLineInterface;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,36 +22,28 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * The main Logic class
  * It runs the main CLI program:
- * - pick categories step
- * - pick projects step
- * - run actions step
+ * - pick procedures state
+ * - run procedure state
  */
 @Slf4j
-public class MainLogic extends StepLogic<MainStep> {
+public class MainLogic extends StateLogic<MainState> {
 
 	private final MainLogicData mainLogicData;
 	private final CommandLineInterface cli;
-	private final ActionDispatcher actionDispatcher;
+	private final MainService mainService;
 	
-	private Category category;
-	private List<Project> projects;
+	private Procedure procedure;
 	
 	public MainLogic(MainLogicData mainLogicData, CommandLineInterface cli) {
 		
-		super(MainStep.PICK_CATEGORY, MainStep.EXIT);
-
-		this.mainLogicData = mainLogicData;
-		this.cli = cli;
+		super(MainState.PICK_PROCEDURE, MainState.EXIT);
 		
 		Config config = mainLogicData.getConfig();
 		ActionFlags actionFlags = mainLogicData.getActionFlags();
-		
-		GitService gitService = actionFlags.isGitActions() ? new GitService(config, cli) : null;
-		JenkinsService jenkinsService =  actionFlags.isJenkinsActions() ? new JenkinsService(config, cli) : null;
-		MavenService mavenService =  actionFlags.isMavenActions() ? new MavenService(config, cli) : null;
-		OperatingSystemService operatingSystemService =  actionFlags.isOperatingSystemActions() ? new OperatingSystemService(config, cli) : null;
-		
-		this.actionDispatcher = new ActionDispatcher(cli, gitService, jenkinsService, mavenService, operatingSystemService);
+
+		this.mainLogicData = mainLogicData;
+		this.cli = cli;
+		this.mainService = new MainService(config, actionFlags, cli);
 	}
 
 	public void execute() {
@@ -66,7 +51,7 @@ public class MainLogic extends StepLogic<MainStep> {
 		try {
 		
 			printConfig();
-			loopSteps();
+			loopStates();
 		}
 		catch(Exception e) {
 			
@@ -125,110 +110,60 @@ public class MainLogic extends StepLogic<MainStep> {
 	}
 	
 	@Override
-	protected MainStep processCurrentStep(MainStep currentStep) {
+	protected MainState processCurrentState(MainState currentState) {
 		
-		switch(currentStep) {
+		switch(currentState) {
 		
-			case PICK_CATEGORY:
-				return pickCategory();
+			case PICK_PROCEDURE:
+				return pickProcedure();
 		
-			case PICK_PROJECTS:
-				return pickProjects();
-		
-			case DO_ACTIONS:
-				return doActions();
+			case RUN_PROCEDURE:
+				return runProcedure();
 				
 			default:
-				throw new IllegalStateException("Unknown step: " + currentStep);
+				throw new IllegalStateException("Unknown state: " + currentState);
 		}
 	}
 	
-	private MainStep pickCategory() {
+	private MainState pickProcedure() {
 		
-		List<Category> allCategories = mainLogicData.getCategories();
-		String optionalPreSelection = mainLogicData.getOptionalPreSelectedCategoryIndex();
+		List<Procedure> allProcedures = mainLogicData.getProcedures();
+		String optionalPreSelection = mainLogicData.getOptionalPreSelectedProcedureIndex();
 		
-		category = cli.askUserSelection("Categories", allCategories, optionalPreSelection);
+		procedure = cli.askUserSelection("Procedures", allProcedures, optionalPreSelection, !StringUtils.isBlank(optionalPreSelection));
 		
-		return MainStep.PICK_PROJECTS;
+		return MainState.RUN_PROCEDURE;
 	}
 	
-	private MainStep pickProjects() {
+	private MainState runProcedure() {
 		
-		List<Project> allProjects = category.getProjects();
-		String optionalPreSelection = mainLogicData.getOptionalPreSelectedProjectIndices();
-		
-		projects = cli.askUserSelectionMultiple("Projects", allProjects, true, optionalPreSelection);
-		
-		return MainStep.DO_ACTIONS;
-	}
-	
-	private MainStep doActions() {
-		
-		// Run each project
-		for(Project project: projects) {
+		// Run the procedure
+		ProcedureLogic procedureLogic = new ProcedureLogic(procedure, mainService, cli);
+		procedureLogic.run();
 
-			String projectDescription = "project \"" + project.getName() + "\" of \"" + category.getName() + "\"";
-			
-			cli.startIdentationGroup("Start %s", projectDescription);
-			
-			doProjectActions(project);
-
-			cli.endIdentationGroup("End %s", projectDescription);
-		}
-		
 		// Clear the state for the next run
 		clearState();
 		
-		// Ask confirmation before restarting if the user will not manually pick the category
-		if(mainLogicData.getCategories().size() == 1 || !StringUtils.isBlank(mainLogicData.getOptionalPreSelectedCategoryIndex())) {
+		// Ask confirmation before restarting if the user will not manually pick the procedure
+		if(mainLogicData.getProcedures().size() == 1 || !StringUtils.isBlank(mainLogicData.getOptionalPreSelectedProcedureIndex())) {
 			
 			if(cli.askUserConfirmation("Restart from the beginning")) {
 
-				return MainStep.PICK_CATEGORY;
+				return MainState.PICK_PROCEDURE;
 			}
 			else {
 
-				return MainStep.EXIT;
+				return MainState.EXIT;
 			}
 		}
 		else {
 			
-			return MainStep.PICK_CATEGORY;
-		}
-	}
-	
-	private void doProjectActions(Project project) {
-		
-		Map<String, String> projectVariables = new HashMap<>();
-		
-		for(int i = 0; i < project.getActions().size(); i++) {
-			
-			Action action = project.getActions().get(i);
-			String actionDescription = "action \"" + action.getName() + "\" (" + action.getTypeDescription() + ")";
-			
-			cli.startIdentationGroup("Start %s", actionDescription);
-			
-			try {
-				
-				actionDispatcher.dispatch(action, projectVariables);
-			}
-			catch(Exception e) {
-				
-				log.error("Action error", e);
-				cli.printError("Aborting all project actions because of error: %s", e.getMessage());
-				return;
-			}
-			finally {
-				
-				cli.endIdentationGroup("End %s", actionDescription);
-			}
+			return MainState.PICK_PROCEDURE;
 		}
 	}
 
 	private void clearState() {
 		
-		this.category = null;
-		this.projects = null;
+		this.procedure = null;
 	}
 }

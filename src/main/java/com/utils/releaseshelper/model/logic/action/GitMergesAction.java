@@ -1,8 +1,6 @@
 package com.utils.releaseshelper.model.logic.action;
 
-import java.util.List;
-
-import com.utils.releaseshelper.model.logic.git.GitMerge;
+import com.utils.releaseshelper.model.logic.ValueDefinition;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,8 +12,9 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class GitMergesAction extends Action {
 
-	private String repositoryFolder;
-	private List<GitMerge> merges;
+	private ValueDefinition repositoryFolder;
+	private ValueDefinition merges;
+	private boolean pull;
 
 	@Override
 	public String getTypeDescription() {

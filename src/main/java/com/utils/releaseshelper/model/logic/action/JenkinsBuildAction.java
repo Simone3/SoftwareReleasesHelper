@@ -2,6 +2,7 @@ package com.utils.releaseshelper.model.logic.action;
 
 import java.util.List;
 
+import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.VariableDefinition;
 
 import lombok.Data;
@@ -14,7 +15,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class JenkinsBuildAction extends Action {
 
-	private String url;
+	private ValueDefinition url;
 	private List<VariableDefinition> parameters;
 
 	@Override

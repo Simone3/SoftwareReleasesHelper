@@ -14,7 +14,6 @@ public class MainLogicData {
 
 	private Config config;
 	private ActionFlags actionFlags;
-	private List<Category> categories;
-	private String optionalPreSelectedCategoryIndex;
-	private String optionalPreSelectedProjectIndices;
+	private List<Procedure> procedures;
+	private String optionalPreSelectedProcedureIndex;
 }

@@ -28,7 +28,7 @@ public class MavenCommandsActionLogic extends ActionLogic<MavenCommandsAction> {
 	private final MavenService mavenService;
 	private final GitService gitService;
 
-	protected MavenCommandsActionLogic(MavenCommandsAction action, Map<String, String> variables, CommandLineInterface cli, MavenService mavenService, GitService gitService) {
+	public MavenCommandsActionLogic(MavenCommandsAction action, Map<String, String> variables, CommandLineInterface cli, MavenService mavenService, GitService gitService) {
 		
 		super(action, variables, cli);
 		this.mavenService = mavenService;
@@ -44,6 +44,8 @@ public class MavenCommandsActionLogic extends ActionLogic<MavenCommandsAction> {
 	@Override
 	protected void registerValueDefinitions(ValuesDefiner valuesDefiner) {
 
+		valuesDefiner.addValueDefinition(action.getProjectFolder(), "project folder");
+		
 		List<MavenCommand> commands = action.getCommands();
 		for(MavenCommand command: commands) {
 			
@@ -67,7 +69,7 @@ public class MavenCommandsActionLogic extends ActionLogic<MavenCommandsAction> {
 	@Override
 	protected void printActionDescription(ValuesDefiner valuesDefiner) {
 		
-		String projectFolder = action.getProjectFolder();
+		String projectFolder = valuesDefiner.getValue(action.getProjectFolder());
 		List<MavenCommand> commands = action.getCommands();
 		
 		cli.println("Run these Maven commands on %s:", projectFolder);
@@ -141,17 +143,22 @@ public class MavenCommandsActionLogic extends ActionLogic<MavenCommandsAction> {
 
 	private GitPrepareForChangesServiceInput mapGitPrepareForChangesInput(ValuesDefiner valuesDefiner) {
 		
+		String projectFolder = valuesDefiner.getValue(action.getProjectFolder());
+		String branch = valuesDefiner.getValue(action.getGitCommit().getBranch());
+		
 		GitPrepareForChangesServiceInput input = new GitPrepareForChangesServiceInput();
-		input.setRepositoryFolder(action.getProjectFolder());
-		input.setBranch(valuesDefiner.getValue(action.getGitCommit().getBranch()));
+		input.setRepositoryFolder(projectFolder);
+		input.setBranch(branch);
 		input.setPull(action.getGitCommit().isPull());
 		return input;
 	}
 
 	private MavenRunCommandServiceInput mapMavenCommandsInput(ValuesDefiner valuesDefiner) {
 		
+		String projectFolder = valuesDefiner.getValue(action.getProjectFolder());
+		
 		MavenRunCommandServiceInput input = new MavenRunCommandServiceInput();
-		input.setProjectFolder(action.getProjectFolder());
+		input.setProjectFolder(projectFolder);
 		input.setCommands(mapMavenCommandModels(valuesDefiner));
 		return input;
 	}
@@ -190,11 +197,14 @@ public class MavenCommandsActionLogic extends ActionLogic<MavenCommandsAction> {
 	}
 
 	private GitCommitChangesServiceInput mapGitCommitChangesInput(ValuesDefiner valuesDefiner, String originalBranch) {
+
+		String projectFolder = valuesDefiner.getValue(action.getProjectFolder());
+		String message = valuesDefiner.getValue(action.getGitCommit().getMessage());
 		
 		GitCommitChangesServiceInput input = new GitCommitChangesServiceInput();
-		input.setRepositoryFolder(action.getProjectFolder());
+		input.setRepositoryFolder(projectFolder);
 		input.setOriginalBranch(originalBranch);
-		input.setMessage(valuesDefiner.getValue(action.getGitCommit().getMessage()));
+		input.setMessage(message);
 		return input;
 	}
 }
