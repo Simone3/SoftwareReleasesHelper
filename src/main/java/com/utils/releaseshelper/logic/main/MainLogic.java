@@ -63,6 +63,7 @@ public class MainLogic extends StateLogic<MainState> {
 	private void printConfig() {
 		
 		Config config = mainLogicData.getConfig();
+		boolean testMode = config.isTestMode();
 		boolean printPasswords = config.isPrintPasswords();
 		GitConfig git = config.getGit();
 		JenkinsConfig jenkins = config.getJenkins();
@@ -105,6 +106,14 @@ public class MainLogic extends StateLogic<MainState> {
 
 			cli.println("Loaded Maven config:");
 			cli.println("  - Maven home: %s", StringUtils.defaultIfBlank(maven.getMavenHomeFolder(), ""));
+			cli.println();
+		}
+		
+		if(testMode) {
+			
+			cli.println("*****************************************************************");
+			cli.println("*** WARNING: test mode is active, all actions will do nothing ***");
+			cli.println("*****************************************************************");
 			cli.println();
 		}
 	}
