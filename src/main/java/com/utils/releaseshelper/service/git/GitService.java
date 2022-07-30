@@ -83,15 +83,18 @@ public class GitService implements Service {
 			
 			String branch = connector.getCurrentBranch(git);
 			
-			commitAll(git, branch, message);
+			boolean actuallyCommitted = commitAll(git, branch, message);
 			
 			connector.switchBranch(git, originalBranch);
 			
 			cli.println();
 			cli.println("Switched to %s (original branch)", originalBranch);
 			
-			cli.println();
-			cli.println("Commit changes completed. Don't forget to manually push the target branch!");
+			if(actuallyCommitted) {
+				
+				cli.println();
+				cli.println("Commit changes completed. Don't forget to manually push the target branch!");
+			}
 		}
 	}
 
@@ -195,17 +198,19 @@ public class GitService implements Service {
 		}
 		else {
 
-			cli.println("Error merging %s into %s, status is %s", sourceBranch, targetBranch, mergeStatus);
+			cli.printError("Error merging %s into %s, status is %s", sourceBranch, targetBranch, mergeStatus);
 
 			checkWorkingTreeClean(git, "Unfinished merge", "Please resolve the merge manually and commit, leaving the working tree clean");
 		}
 	}
 
-	private void commitAll(GitRepository git, String currentBranch, String message) {
+	private boolean commitAll(GitRepository git, String currentBranch, String message) {
 		
 		if(connector.isWorkingTreeClean(git)) {
 			
 			cli.println("Nothing to commit");
+			
+			return false;
 		}
 		else {
 			
@@ -213,6 +218,8 @@ public class GitService implements Service {
 		    connector.commit(git, message);
 		    
 		    cli.println("Successfully committed all changes on %s with comment \"%s\"", currentBranch, message);
+		    
+		    return true;
 		}
 	}
 	

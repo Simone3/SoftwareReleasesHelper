@@ -39,7 +39,23 @@ public abstract class ActionLogic<A extends Action> implements Logic {
 	 */
 	public void run() {
 		
-		doRunAction();
+		beforeAction();
+		
+		ValuesDefiner valuesDefiner = new ValuesDefiner(cli, variables);
+		registerValueDefinitions(valuesDefiner);
+		
+		printDescriptionAndHandleValueDefinitions(valuesDefiner);
+
+		if(confirmRunAction()) {
+			
+			doRunAction(valuesDefiner);
+		}
+		else {
+			
+			cli.println("Action skipped");
+		}
+		
+		afterAction();
 	}
 
 	/**
@@ -86,27 +102,6 @@ public abstract class ActionLogic<A extends Action> implements Logic {
 		}
 		
 		return cli.askUserConfirmation(getConfirmationPrompt());
-	}
-
-	private void doRunAction() {
-		
-		beforeAction();
-		
-		ValuesDefiner valuesDefiner = new ValuesDefiner(cli, variables);
-		registerValueDefinitions(valuesDefiner);
-		
-		printDescriptionAndHandleValueDefinitions(valuesDefiner);
-
-		if(confirmRunAction()) {
-			
-			doRunAction(valuesDefiner);
-		}
-		else {
-			
-			cli.println("Action skipped");
-		}
-		
-		afterAction();
 	}
 	
 	private void printDescriptionAndHandleValueDefinitions(ValuesDefiner valuesDefiner) {
