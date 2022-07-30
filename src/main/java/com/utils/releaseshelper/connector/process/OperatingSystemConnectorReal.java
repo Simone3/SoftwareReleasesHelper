@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 
 import org.apache.commons.lang3.SystemUtils;
 
+import com.utils.releaseshelper.model.error.BusinessException;
 import com.utils.releaseshelper.view.output.CommandLineOutputHandler;
 
 import lombok.SneakyThrows;
@@ -22,12 +23,12 @@ public class OperatingSystemConnectorReal implements OperatingSystemConnector {
 		
 		if(!folder.exists()) {
 			
-			throw new IllegalStateException("Folder " + folder.getAbsolutePath() + " does not exist!");
+			throw new BusinessException("Folder " + folder.getAbsolutePath() + " does not exist!");
 		}
 		
 		if(!folder.isDirectory()) {
 			
-			throw new IllegalStateException(folder.getAbsolutePath() + " is a file!");
+			throw new BusinessException(folder.getAbsolutePath() + " is a file!");
 		}
 		
 		return folder;

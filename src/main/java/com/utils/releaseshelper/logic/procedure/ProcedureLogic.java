@@ -57,7 +57,7 @@ public class ProcedureLogic implements Logic {
 			
 			String stepDescription = "step #" + i + " (" + step.getTypeDescription() + ") of \"" + procedure.getName() + "\"";
 			
-			cli.startIdentationGroup("Start %s", stepDescription);
+			cli.startIndentationGroup("Start %s", stepDescription);
 			
 			try {
 			
@@ -66,12 +66,12 @@ public class ProcedureLogic implements Logic {
 			catch(Exception e) {
 				
 				log.error("Step error", e);
-				cli.printError("Aborting all procedure steps because of error: %s", e.getMessage());
+				cli.printError("Interrupting all procedure steps because of error: %s", e.getMessage());
 				return;
 			}
 			finally {
 			
-				cli.endIdentationGroup("End %s", stepDescription);
+				cli.endIndentationGroup("End %s", stepDescription);
 			}
 		}
 	}

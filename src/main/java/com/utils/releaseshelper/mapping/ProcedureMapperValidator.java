@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.utils.releaseshelper.model.error.ValidationException;
 import com.utils.releaseshelper.model.logic.Procedure;
 import com.utils.releaseshelper.model.logic.action.Action;
 import com.utils.releaseshelper.model.logic.step.Step;
 import com.utils.releaseshelper.model.properties.ProcedureProperty;
-import com.utils.releaseshelper.validation.ValidationException;
 import com.utils.releaseshelper.validation.ValidationUtils;
 
 import lombok.experimental.UtilityClass;

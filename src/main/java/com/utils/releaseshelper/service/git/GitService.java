@@ -15,12 +15,16 @@ import com.utils.releaseshelper.connector.git.GitConnectorReal;
 import com.utils.releaseshelper.connector.git.GitRepository;
 import com.utils.releaseshelper.model.config.Config;
 import com.utils.releaseshelper.model.config.GitConfig;
+import com.utils.releaseshelper.model.error.BusinessException;
+import com.utils.releaseshelper.model.logic.git.GitLocalBranchErrorRemediation;
+import com.utils.releaseshelper.model.logic.git.GitPullErrorRemediation;
+import com.utils.releaseshelper.model.logic.git.GitWorkingTreeErrorRemediation;
 import com.utils.releaseshelper.model.service.git.GitCommitChangesServiceInput;
 import com.utils.releaseshelper.model.service.git.GitMergeServiceModel;
 import com.utils.releaseshelper.model.service.git.GitMergesServiceInput;
 import com.utils.releaseshelper.model.service.git.GitPrepareForChangesServiceInput;
 import com.utils.releaseshelper.service.Service;
-import com.utils.releaseshelper.utils.RetryUtils;
+import com.utils.releaseshelper.utils.ErrorRemediationUtils;
 import com.utils.releaseshelper.utils.VariablesUtils;
 import com.utils.releaseshelper.view.CommandLineInterface;
 
@@ -55,14 +59,14 @@ public class GitService implements Service {
 			
 			String originalBranch = connector.getCurrentBranch(git);
 			
-			checkBranchesExistWithRetries(git, branch);
+			checkBranchesExistWithErrorRemediation(git, branch);
 			
 			connector.switchBranch(git, branch);
 			cli.println("Switched to %s", branch);
 			
 			if(pull) {
 				
-				pullWithRetries(git, gitConfig, branch);
+				pullWithErrorRemediation(git, gitConfig, branch);
 			}
 			
 			return originalBranch;
@@ -111,13 +115,26 @@ public class GitService implements Service {
 		cli.println();
 		cli.println(merges.size() == 1 ? "Merge completed. Don't forget to manually push the target branch!" : "All merges completed. Don't forget to manually push the target branches!");
 	}
-
+	
 	private void checkWorkingTreeClean(GitRepository git) {
 		
-		while(!connector.isWorkingTreeClean(git)) {
-			
-			cli.askUserConfirmation("Working tree is not clean, please commit or discard changed files. Done");
-		}
+		checkWorkingTreeClean(git, "Error checking working tree", "Working tree is not clean, please commit or discard changed files");
+	}
+
+	private void checkWorkingTreeClean(GitRepository git, String errorMessage, String exceptionMessage) {
+		
+		ErrorRemediationUtils.runWithErrorRemediation(
+			cli,
+			errorMessage,
+			GitWorkingTreeErrorRemediation.values(),
+			() -> {
+				
+				if(!connector.isWorkingTreeClean(git)) {
+					
+					throw new BusinessException(exceptionMessage);
+				}
+			}
+		);
 		
 		cli.println("Working tree is clean");
 	}
@@ -150,7 +167,7 @@ public class GitService implements Service {
 		mergeMessagePlaceholders.put(MESSAGE_PLACEHOLDER_TARGET_BRANCH, targetBranch);
 		String mergeMessage = VariablesUtils.replaceVariablePlaceholders(gitConfig.getMergeMessage(), null, mergeMessagePlaceholders);
 		
-		checkBranchesExistWithRetries(git, sourceBranch, targetBranch);
+		checkBranchesExistWithErrorRemediation(git, sourceBranch, targetBranch);
 		
 		if(pull && !pulledBranches.contains(sourceBranch)) {
 			
@@ -158,7 +175,7 @@ public class GitService implements Service {
 			cli.println("Switched to %s (source branch)", sourceBranch);
 			
 			pulledBranches.add(sourceBranch);
-			pullWithRetries(git, gitConfig, sourceBranch);
+			pullWithErrorRemediation(git, gitConfig, sourceBranch);
 		}
 		
 		connector.switchBranch(git, targetBranch);
@@ -167,7 +184,7 @@ public class GitService implements Service {
 		if(pull && !pulledBranches.contains(targetBranch)) {
 
 			pulledBranches.add(targetBranch);
-			pullWithRetries(git, gitConfig, targetBranch);
+			pullWithErrorRemediation(git, gitConfig, targetBranch);
 		}
 		
 		MergeResult mergeResult = connector.mergeIntoCurrentBranch(git, sourceBranch, mergeMessage);
@@ -178,15 +195,9 @@ public class GitService implements Service {
 		}
 		else {
 
-			cli.printError("Error merging %s into %s, status is: %s", sourceBranch, targetBranch, mergeStatus);
+			cli.println("Error merging %s into %s, status is %s", sourceBranch, targetBranch, mergeStatus);
 
-			do {
-				
-				cli.askUserConfirmation("Please resolve the merge manually and commit, leaving the working tree clean. Done");
-			}
-			while(!connector.isWorkingTreeClean(git));
-			
-			cli.println("Working tree is clean");
+			checkWorkingTreeClean(git, "Unfinished merge", "Please resolve the merge manually and commit, leaving the working tree clean");
 		}
 	}
 
@@ -205,37 +216,33 @@ public class GitService implements Service {
 		}
 	}
 	
-	private boolean checkBranchesExistWithRetries(GitRepository git, String... branches) {
+	private boolean checkBranchesExistWithErrorRemediation(GitRepository git, String... branches) {
 		
-		boolean branchesExist = RetryUtils.retry(cli, "Retry checking local branches", "Error checking branches", () -> connector.checkBranchesExist(git, branches));
-		
-		if(!branchesExist) {
-			
-			throw new IllegalStateException("Cannot run Git if branches do not exist");
-		}
-		
-		return branchesExist;
+		return ErrorRemediationUtils.runWithErrorRemediation(
+			cli,
+			"Error checking branches",
+			GitLocalBranchErrorRemediation.values(),
+			() -> connector.checkBranchesExist(git, branches)
+		);
 	}
 	
-	private boolean pullWithRetries(GitRepository git, GitConfig gitConfig, String currentBranch) {
+	private boolean pullWithErrorRemediation(GitRepository git, GitConfig gitConfig, String currentBranch) {
 		
 		String username = gitConfig.getUsername();
 		String password = gitConfig.getPassword();
 		
-		boolean pullSuccess = RetryUtils.retry(cli, "Retry pulling from \"" + currentBranch + "\"", "Cannot pull from \"" + currentBranch + "\"", () -> {
-			
-			cli.println("Start pulling from %s...", currentBranch);
-			
-			connector.pull(git, username, password);
-			
-			cli.println("Successfully pulled from %s", currentBranch);
-		});
-		
-		if(!pullSuccess) {
-			
-			cli.println("Pull skipped");
-		}
-		
-		return pullSuccess;
+		return ErrorRemediationUtils.runWithErrorRemediation(
+			cli,
+			"Error pulling from " + currentBranch,
+			GitPullErrorRemediation.values(),
+			() -> {
+				
+				cli.println("Start pulling from %s...", currentBranch);
+				
+				connector.pull(git, username, password);
+				
+				cli.println("Successfully pulled from %s", currentBranch);
+			}
+		);
 	}
 }

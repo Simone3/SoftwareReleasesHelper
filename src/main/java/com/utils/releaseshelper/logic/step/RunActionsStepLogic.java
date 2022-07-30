@@ -26,11 +26,16 @@ public class RunActionsStepLogic extends StepLogic<RunActionsStep> {
 			
 			String actionDescription = "action \"" + action.getName() + "\" (" + action.getTypeDescription() + ")";
 			
-			cli.startIdentationGroup("Start %s", actionDescription);
+			cli.startIndentationGroup("Start %s", actionDescription);
 			
-			runAction(action);
+			try {
+				
+				runAction(action);
+			}
+			finally {
 			
-			cli.endIdentationGroup("End %s", actionDescription);
+				cli.endIndentationGroup("End %s", actionDescription);
+			}
 		}
 	}
 }

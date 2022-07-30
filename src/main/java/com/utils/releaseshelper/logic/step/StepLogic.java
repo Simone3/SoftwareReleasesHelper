@@ -15,6 +15,7 @@ import com.utils.releaseshelper.logic.action.OperatingSystemCommandsActionLogic;
 import com.utils.releaseshelper.logic.action.WaitActionLogic;
 import com.utils.releaseshelper.model.logic.Project;
 import com.utils.releaseshelper.model.logic.action.Action;
+import com.utils.releaseshelper.model.logic.action.ActionErrorRemediation;
 import com.utils.releaseshelper.model.logic.action.DefineVariablesAction;
 import com.utils.releaseshelper.model.logic.action.GitMergesAction;
 import com.utils.releaseshelper.model.logic.action.JenkinsBuildAction;
@@ -23,6 +24,7 @@ import com.utils.releaseshelper.model.logic.action.OperatingSystemCommandsAction
 import com.utils.releaseshelper.model.logic.action.WaitAction;
 import com.utils.releaseshelper.model.logic.step.Step;
 import com.utils.releaseshelper.service.main.MainService;
+import com.utils.releaseshelper.utils.ErrorRemediationUtils;
 import com.utils.releaseshelper.view.CommandLineInterface;
 
 /**
@@ -57,12 +59,20 @@ public abstract class StepLogic<S extends Step> implements Logic {
 		doRunStep();
 	}
 	
-	public abstract void doRunStep();
+	protected abstract void doRunStep();
 	
 	protected void runAction(Action action) {
 		
-		ActionLogic<?> actionLogic = getActionLogic(action);
-		actionLogic.run();
+		ErrorRemediationUtils.runWithErrorRemediation(
+			cli,
+			"Error running action",
+			ActionErrorRemediation.values(),
+			() -> {
+				
+				ActionLogic<?> actionLogic = getActionLogic(action);
+				actionLogic.run();
+			}
+		);
 	}
 	
 	private ActionLogic<?> getActionLogic(Action action) {

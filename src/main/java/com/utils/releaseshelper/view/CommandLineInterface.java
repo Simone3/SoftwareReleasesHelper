@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import com.utils.releaseshelper.model.error.BusinessException;
 import com.utils.releaseshelper.model.view.SelectOption;
 
 import lombok.extern.slf4j.Slf4j;
@@ -142,7 +143,7 @@ public class CommandLineInterface {
 		return handleUserSelection(message, options, defaultSelection, forceDefaultSelection, true, allowAllSymbol);
 	}
 	
-	public void startIdentationGroup(String groupTitle, Object... args) {
+	public void startIndentationGroup(String groupTitle, Object... args) {
 		
 		println();
 		println(GROUP_TITLE_PREFIX + groupTitle, args);
@@ -150,7 +151,7 @@ public class CommandLineInterface {
 		println();
 	}
 	
-	public void endIdentationGroup(String groupTitle, Object... args) {
+	public void endIndentationGroup(String groupTitle, Object... args) {
 		
 		Assert.isTrue(currentIndentation.length() >= GROUP_INDENTATION.length(), "Trying to end an indentation group without the corresponding start!");
 		println();
@@ -212,7 +213,7 @@ public class CommandLineInterface {
 		}
 		catch(Exception e) {
 			
-			throw new IllegalStateException(message + ": invalid pre-filled selection \"" + defaultSelection + "\"");
+			throw new BusinessException(message + ": invalid pre-filled selection \"" + defaultSelection + "\"", e);
 		}
 	}
 	
@@ -294,7 +295,7 @@ public class CommandLineInterface {
 			
 			if(optionNumber <= 0 || optionNumber > size) {
 				
-				throw new IllegalStateException("Option " + optionNumber + " is out of range");
+				throw new BusinessException("Option " + optionNumber + " is out of range");
 			}
 			
 			indices.add(optionNumber - 1);
@@ -304,7 +305,7 @@ public class CommandLineInterface {
 		
 		if(!multiple && indices.size() > 1) {
 			
-			throw new IllegalStateException("Cannot select more than one option in a non-multiple select");
+			throw new BusinessException("Cannot select more than one option in a non-multiple select");
 		}
 		
 		return indices;

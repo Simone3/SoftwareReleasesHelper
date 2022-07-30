@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
+import com.utils.releaseshelper.model.error.ValidationException;
 import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.VariableDefinition;
 import com.utils.releaseshelper.model.logic.action.Action;
@@ -29,7 +30,6 @@ import com.utils.releaseshelper.model.properties.JenkinsProperties;
 import com.utils.releaseshelper.model.properties.MavenProperties;
 import com.utils.releaseshelper.utils.FileUtils;
 import com.utils.releaseshelper.utils.UrlUtils;
-import com.utils.releaseshelper.validation.ValidationException;
 import com.utils.releaseshelper.validation.ValidationUtils;
 
 import lombok.experimental.UtilityClass;

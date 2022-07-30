@@ -2,6 +2,8 @@ package com.utils.releaseshelper.connector.jenkins;
 
 import java.util.Map;
 
+import com.utils.releaseshelper.model.error.MockException;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JenkinsConnectorMock implements JenkinsConnector {
 	
 	private int errorsToThrow = 0;
+	
 	private int thrownErrors = 0;
 
 	@Override
@@ -34,7 +37,7 @@ public class JenkinsConnectorMock implements JenkinsConnector {
 			else {
 				
 				thrownErrors++;
-				throw new IllegalStateException("This is a mock Jenkins error!");
+				throw new MockException("This is a mock Jenkins error!");
 			}
 		}
 	}

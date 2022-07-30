@@ -13,12 +13,12 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.utils.releaseshelper.model.error.ValidationException;
 import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.ValueDefinitionType;
 import com.utils.releaseshelper.model.logic.VariableDefinition;
 import com.utils.releaseshelper.model.view.SelectOption;
 import com.utils.releaseshelper.model.view.SimpleSelectOption;
-import com.utils.releaseshelper.validation.ValidationException;
 import com.utils.releaseshelper.validation.ValidationUtils;
 
 import lombok.experimental.UtilityClass;

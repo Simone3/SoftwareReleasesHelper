@@ -5,6 +5,8 @@ import org.eclipse.jgit.api.MergeResult.MergeStatus;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.lib.Ref;
 
+import com.utils.releaseshelper.model.error.MockException;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -14,7 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 public class GitConnectorMock implements GitConnector {
 
 	private int workspaceErrorsToThrow = 0;
+	private int switchBranchErrorsToThrow = 0;
 	private int pullErrorsToThrow = 0;
+	
 	private int thrownErrors = 0;
 	
 	@Override
@@ -63,6 +67,20 @@ public class GitConnectorMock implements GitConnector {
 	public Ref switchBranch(GitRepository gitRepository, String branch) {
 
 		log.warn("Git operations disabled: skipping branch switch to {}", branch);
+
+		if(switchBranchErrorsToThrow > 0) {
+			
+			if(thrownErrors >= switchBranchErrorsToThrow) {
+				
+				thrownErrors = 0;
+			}
+			else {
+				
+				thrownErrors++;
+				throw new MockException("This is a mock Git switch error!");
+			}
+		}
+		
 		return null;
 	}
 
@@ -92,7 +110,7 @@ public class GitConnectorMock implements GitConnector {
 			else {
 				
 				thrownErrors++;
-				throw new IllegalStateException("This is a mock Git pull error!");
+				throw new MockException("This is a mock Git pull error!");
 			}
 		}
 		

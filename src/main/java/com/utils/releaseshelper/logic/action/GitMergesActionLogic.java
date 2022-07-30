@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.utils.releaseshelper.model.error.BusinessException;
 import com.utils.releaseshelper.model.logic.action.GitMergesAction;
 import com.utils.releaseshelper.model.service.git.GitMergeServiceModel;
 import com.utils.releaseshelper.model.service.git.GitMergesServiceInput;
@@ -95,7 +96,7 @@ public class GitMergesActionLogic extends ActionLogic<GitMergesAction> {
 			
 			if(mergeBranches.length < 2) {
 				
-				throw new IllegalStateException("Not enough branches defined in: " + mergeString);
+				throw new BusinessException("Not enough branches defined in: " + mergeString);
 			}
 			
 			for(int i = 1; i < mergeBranches.length; i++) {
@@ -105,7 +106,7 @@ public class GitMergesActionLogic extends ActionLogic<GitMergesAction> {
 
 				if(StringUtils.isBlank(sourceBranch) || StringUtils.isBlank(targetBranch)) {
 					
-					throw new IllegalStateException("Empty branch in: " + mergeString);
+					throw new BusinessException("Empty branch in: " + mergeString);
 				}
 				
 				GitMergeServiceModel serviceModel = new GitMergeServiceModel();

@@ -7,12 +7,12 @@ import java.util.Map;
 import org.springframework.util.CollectionUtils;
 
 import com.utils.releaseshelper.model.config.MavenConfig;
+import com.utils.releaseshelper.model.error.ValidationException;
 import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.VariableDefinition;
 import com.utils.releaseshelper.model.logic.maven.MavenCommand;
 import com.utils.releaseshelper.model.properties.GenericCommandProperty;
 import com.utils.releaseshelper.model.properties.MavenProperties;
-import com.utils.releaseshelper.validation.ValidationException;
 import com.utils.releaseshelper.validation.ValidationUtils;
 
 import lombok.experimental.UtilityClass;

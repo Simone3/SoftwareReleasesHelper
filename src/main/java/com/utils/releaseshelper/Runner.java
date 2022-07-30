@@ -45,9 +45,9 @@ public class Runner implements CommandLineRunner {
 			mainLogicData = PropertiesMapperValidator.mapAndValidateProperties(properties);
 		}
 		catch(Exception e) {
-			
-			cli.printError("Invalid configuration: %s", e.getMessage());
+
 			log.error("Validation error", e);
+			cli.printError("Invalid configuration: %s", e.getMessage());
 			printSampleConfiguration();
 			return;
 		}

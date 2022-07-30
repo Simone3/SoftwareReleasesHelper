@@ -1,7 +1,7 @@
-package com.utils.releaseshelper.validation;
+package com.utils.releaseshelper.model.error;
 
 /**
- * Internal exception for validation errors
+ * An Exception for any validation error
  */
 public class ValidationException extends RuntimeException {
 

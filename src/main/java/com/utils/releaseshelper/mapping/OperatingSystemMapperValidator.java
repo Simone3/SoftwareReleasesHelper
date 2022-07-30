@@ -3,10 +3,10 @@ package com.utils.releaseshelper.mapping;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.utils.releaseshelper.model.error.ValidationException;
 import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.process.OperatingSystemCommand;
 import com.utils.releaseshelper.model.properties.GenericCommandProperty;
-import com.utils.releaseshelper.validation.ValidationException;
 import com.utils.releaseshelper.validation.ValidationUtils;
 
 import lombok.experimental.UtilityClass;

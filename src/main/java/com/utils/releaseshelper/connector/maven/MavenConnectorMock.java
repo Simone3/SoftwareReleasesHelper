@@ -3,6 +3,7 @@ package com.utils.releaseshelper.connector.maven;
 import java.io.File;
 import java.util.Map;
 
+import com.utils.releaseshelper.model.error.MockException;
 import com.utils.releaseshelper.view.output.CommandLineOutputHandler;
 
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MavenConnectorMock implements MavenConnector {
 	
 	private int errorsToThrow = 0;
+	
 	private int thrownErrors = 0;
 	
 	@Override
@@ -37,7 +39,7 @@ public class MavenConnectorMock implements MavenConnector {
 			else {
 				
 				thrownErrors++;
-				throw new IllegalStateException("This is a mock Maven error!");
+				throw new MockException("This is a mock Maven error!");
 			}
 		}
 	}

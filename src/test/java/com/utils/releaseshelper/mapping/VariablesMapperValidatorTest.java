@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
+import com.utils.releaseshelper.model.error.ValidationException;
 import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.ValueDefinitionType;
-import com.utils.releaseshelper.validation.ValidationException;
 
 class VariablesMapperValidatorTest {
 	

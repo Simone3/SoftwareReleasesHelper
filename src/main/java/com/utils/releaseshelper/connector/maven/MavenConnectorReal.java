@@ -16,6 +16,7 @@ import org.apache.maven.shared.invoker.Invoker;
 import org.springframework.util.CollectionUtils;
 
 import com.utils.releaseshelper.model.config.MavenConfig;
+import com.utils.releaseshelper.model.error.BusinessException;
 import com.utils.releaseshelper.view.output.CommandLineOutputHandler;
 
 import lombok.SneakyThrows;
@@ -41,12 +42,12 @@ public class MavenConnectorReal implements MavenConnector {
 		
 		if(!pomFile.exists()) {
 			
-			throw new IllegalStateException("pom.xml file " + pomFile.getAbsolutePath() + " does not exist!");
+			throw new BusinessException("pom.xml file " + pomFile.getAbsolutePath() + " does not exist!");
 		}
 		
 		if(pomFile.isDirectory()) {
 			
-			throw new IllegalStateException("pom.xml file " + pomFile.getAbsolutePath() + " is a folder!");
+			throw new BusinessException("pom.xml file " + pomFile.getAbsolutePath() + " is a folder!");
 		}
 		
 		return pomFile;
@@ -75,12 +76,12 @@ public class MavenConnectorReal implements MavenConnector {
 		
 		if(!mavenFolder.exists()) {
 			
-			throw new IllegalStateException("Maven home " + mavenFolder.getAbsolutePath() + " does not exist!");
+			throw new BusinessException("Maven home " + mavenFolder.getAbsolutePath() + " does not exist!");
 		}
 		
 		if(!mavenFolder.isDirectory()) {
 			
-			throw new IllegalStateException("Maven home " + mavenFolder.getAbsolutePath() + " is not a folder!");
+			throw new BusinessException("Maven home " + mavenFolder.getAbsolutePath() + " is not a folder!");
 		}
 		
 		return mavenFolder;
@@ -117,12 +118,12 @@ public class MavenConnectorReal implements MavenConnector {
 			if(result.getExecutionException() == null) {
 				
 				log.error("Maven invocation error without exception");
-				throw new IllegalStateException("Maven Error " + result.getExitCode());
+				throw new BusinessException("Maven Error " + result.getExitCode());
 			}
 			else {
 				
 				log.error("Maven invocation error", result.getExecutionException());
-				throw new IllegalStateException("Maven Error " + result.getExitCode() + ": " + result.getExecutionException().getMessage());
+				throw new BusinessException("Maven Error " + result.getExitCode() + ": " + result.getExecutionException().getMessage());
 			}
 		}
 	}

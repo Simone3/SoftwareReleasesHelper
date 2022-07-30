@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.utils.releaseshelper.model.config.JenkinsConfig;
 import com.utils.releaseshelper.model.dto.CrumbResponse;
+import com.utils.releaseshelper.model.error.BusinessException;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContext;
@@ -74,7 +75,7 @@ public class JenkinsConnectorReal implements JenkinsConnector {
 		
 		if(response == null || StringUtils.isBlank(response.getCrumb())) {
 			
-			throw new IllegalStateException("No Jenkins crumb received");
+			throw new BusinessException("No Jenkins crumb received");
 		}
 		
 		return response.getCrumb();

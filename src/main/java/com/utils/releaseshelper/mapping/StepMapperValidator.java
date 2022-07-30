@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.utils.releaseshelper.logic.step.RunActionsForEachProjectStepLogic;
+import com.utils.releaseshelper.model.error.ValidationException;
 import com.utils.releaseshelper.model.logic.Project;
 import com.utils.releaseshelper.model.logic.action.Action;
 import com.utils.releaseshelper.model.logic.step.PickProjectsStep;
@@ -18,7 +19,6 @@ import com.utils.releaseshelper.model.logic.step.RunActionsStep;
 import com.utils.releaseshelper.model.logic.step.Step;
 import com.utils.releaseshelper.model.properties.StepProperty;
 import com.utils.releaseshelper.model.properties.StepTypeProperty;
-import com.utils.releaseshelper.validation.ValidationException;
 import com.utils.releaseshelper.validation.ValidationUtils;
 
 import lombok.experimental.UtilityClass;

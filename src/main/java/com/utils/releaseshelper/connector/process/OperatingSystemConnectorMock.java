@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OperatingSystemConnectorMock implements OperatingSystemConnector {
 	
 	private int errorsToThrow = 0;
+	
 	private int thrownErrors = 0;
 
 	@Override

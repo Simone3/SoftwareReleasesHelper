@@ -9,7 +9,6 @@ import com.utils.releaseshelper.model.config.Config;
 import com.utils.releaseshelper.model.config.JenkinsConfig;
 import com.utils.releaseshelper.model.service.jenkins.JenkinsBuildServiceInput;
 import com.utils.releaseshelper.service.Service;
-import com.utils.releaseshelper.utils.RetryUtils;
 import com.utils.releaseshelper.view.CommandLineInterface;
 
 /**
@@ -39,30 +38,20 @@ public class JenkinsService implements Service {
 		String password = jenkinsConfig.getPassword();
 		Map<String, String> parameters = buildInput.getParameters();
 		
-		startBuildWithRetries(crumbUrl, buildUrl, username, password, parameters);
+		doStartBuild(crumbUrl, buildUrl, username, password, parameters);
 	}
 
-	private boolean startBuildWithRetries(String crumbUrl, String buildUrl, String username, String password, Map<String, String> parameters) {
+	private void doStartBuild(String crumbUrl, String buildUrl, String username, String password, Map<String, String> parameters) {
 		
-		boolean buildSuccess = RetryUtils.retry(cli, "Retry build", "Cannot start build", () -> {
+		if(crumb == null) {
 			
-			if(crumb == null) {
-				
-				cli.println("Getting Jenkins crumb...");
-				crumb = connector.getCrumb(crumbUrl, username, password);
-				cli.println("Got Jenkins crumb: %s", crumb);
-			}
-			
-			cli.println("Starting build...");
-			connector.startBuild(buildUrl, username, password, crumb, parameters);
-			cli.println("Build started successfully!");
-		});
-		
-		if(!buildSuccess) {
-			
-			cli.println("Build skipped");
+			cli.println("Getting Jenkins crumb...");
+			crumb = connector.getCrumb(crumbUrl, username, password);
+			cli.println("Got Jenkins crumb: %s", crumb);
 		}
 		
-		return buildSuccess;
+		cli.println("Starting build...");
+		connector.startBuild(buildUrl, username, password, crumb, parameters);
+		cli.println("Build started successfully!");
 	}
 }

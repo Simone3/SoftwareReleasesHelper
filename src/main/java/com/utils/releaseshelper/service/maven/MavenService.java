@@ -8,10 +8,11 @@ import com.utils.releaseshelper.connector.maven.MavenConnector;
 import com.utils.releaseshelper.connector.maven.MavenConnectorMock;
 import com.utils.releaseshelper.connector.maven.MavenConnectorReal;
 import com.utils.releaseshelper.model.config.Config;
+import com.utils.releaseshelper.model.logic.maven.MavenCommandErrorRemediation;
 import com.utils.releaseshelper.model.service.maven.MavenCommandServiceModel;
 import com.utils.releaseshelper.model.service.maven.MavenRunCommandServiceInput;
 import com.utils.releaseshelper.service.Service;
-import com.utils.releaseshelper.utils.RetryUtils;
+import com.utils.releaseshelper.utils.ErrorRemediationUtils;
 import com.utils.releaseshelper.view.CommandLineInterface;
 import com.utils.releaseshelper.view.output.CommandLineOutputHandler;
 import com.utils.releaseshelper.view.output.DefaultCommandLineOutputHandler;
@@ -45,11 +46,11 @@ public class MavenService implements Service {
 				cli.println();
 			}
 			
-			runCommandWithRetries(pomFile, commands.get(i));
+			runCommandWithErrorRemediation(pomFile, commands.get(i));
 		}
 	}
 	
-	private boolean runCommandWithRetries(File pomFile, MavenCommandServiceModel command) {
+	private boolean runCommandWithErrorRemediation(File pomFile, MavenCommandServiceModel command) {
 		
 		String goals = command.getGoals();
 		Map<String, String> arguments = command.getArguments();
@@ -58,18 +59,16 @@ public class MavenService implements Service {
 		
 		CommandLineOutputHandler outputHandler = suppressOutput ? new DummyCommandLineOutputHandler() : new DefaultCommandLineOutputHandler(cli);
 		
-		boolean commandSuccess = RetryUtils.retry(cli, "Retry command", "Cannot run command", () -> {
-			
-			cli.println("Start running \"%s\" command...", goals);
-			connector.runCommand(pomFile, outputHandler, goals, arguments, offline);
-			cli.println("Command \"%s\" successfully completed!", goals);
-		});
-		
-		if(!commandSuccess) {
-			
-			cli.println("Command skipped");
-		}
-
-		return commandSuccess;
+		return ErrorRemediationUtils.runWithErrorRemediation(
+			cli,
+			"Error running command",
+			MavenCommandErrorRemediation.values(),
+			() -> {
+				
+				cli.println("Start running \"%s\" command...", goals);
+				connector.runCommand(pomFile, outputHandler, goals, arguments, offline);
+				cli.println("Command \"%s\" successfully completed!", goals);
+			}
+		);
 	}
 }

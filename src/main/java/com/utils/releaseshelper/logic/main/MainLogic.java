@@ -54,9 +54,9 @@ public class MainLogic extends StateLogic<MainState> {
 			loopStates();
 		}
 		catch(Exception e) {
-			
-			cli.printError("UNEXPECTED GENERIC EXCEPTION: %s", e.getMessage());
-			log.error("Generic error in main logic", e);
+
+			log.error("Global exception in main logic", e);
+			cli.printError("UNEXPECTED GLOBAL ERROR, APPLICATION WILL EXIT: %s", e.getMessage());
 		}
 	}
 	
@@ -121,7 +121,7 @@ public class MainLogic extends StateLogic<MainState> {
 				return runProcedure();
 				
 			default:
-				throw new IllegalStateException("Unknown state: " + currentState);
+				throw new IllegalStateException("Unrecognized state: " + currentState);
 		}
 	}
 	

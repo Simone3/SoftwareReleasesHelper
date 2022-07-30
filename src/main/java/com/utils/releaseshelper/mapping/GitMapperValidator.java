@@ -1,11 +1,11 @@
 package com.utils.releaseshelper.mapping;
 
 import com.utils.releaseshelper.model.config.GitConfig;
+import com.utils.releaseshelper.model.error.ValidationException;
 import com.utils.releaseshelper.model.logic.ValueDefinition;
 import com.utils.releaseshelper.model.logic.git.GitCommit;
 import com.utils.releaseshelper.model.properties.GitCommitProperty;
 import com.utils.releaseshelper.model.properties.GitProperties;
-import com.utils.releaseshelper.validation.ValidationException;
 import com.utils.releaseshelper.validation.ValidationUtils;
 
 import lombok.experimental.UtilityClass;

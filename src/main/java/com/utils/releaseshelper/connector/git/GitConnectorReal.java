@@ -16,6 +16,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import com.utils.releaseshelper.model.config.GitConfig;
+import com.utils.releaseshelper.model.error.BusinessException;
 
 import lombok.SneakyThrows;
 
@@ -81,7 +82,7 @@ public class GitConnectorReal implements GitConnector {
 			
 			if(!branchesSet.contains(branch)) {
 				
-				throw new IllegalStateException("Branch " + branch + " does not exist in local branches");
+				throw new BusinessException("Branch " + branch + " does not exist in local branches");
 			}
 		}
 	}
@@ -128,7 +129,7 @@ public class GitConnectorReal implements GitConnector {
 		
 		if(!pullResult.isSuccessful()) {
 			
-			throw new IllegalStateException(pullResult.toString());
+			throw new BusinessException(pullResult.toString());
 		}
 		
 		return pullResult;
@@ -158,12 +159,12 @@ public class GitConnectorReal implements GitConnector {
 		
 		if(!folder.exists()) {
 			
-			throw new IllegalStateException("Folder " + absoluteFolderPath + " does not exist!");
+			throw new BusinessException("Folder " + absoluteFolderPath + " does not exist!");
 		}
 		
 		if(!folder.isDirectory()) {
 			
-			throw new IllegalStateException(absoluteFolderPath + " is not a folder!");
+			throw new BusinessException(absoluteFolderPath + " is not a folder!");
 		}
 		
 		while(folder != null) {
@@ -178,6 +179,6 @@ public class GitConnectorReal implements GitConnector {
 			folder = folder.getParentFile();
 		}
 		
-		throw new IllegalStateException("Folder " + absoluteFolderPath + " is not a Git repository nor is part of one");
+		throw new BusinessException("Folder " + absoluteFolderPath + " is not a Git repository nor is part of one");
 	}
 }

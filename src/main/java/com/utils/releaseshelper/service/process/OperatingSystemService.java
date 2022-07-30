@@ -7,10 +7,12 @@ import com.utils.releaseshelper.connector.process.OperatingSystemConnector;
 import com.utils.releaseshelper.connector.process.OperatingSystemConnectorMock;
 import com.utils.releaseshelper.connector.process.OperatingSystemConnectorReal;
 import com.utils.releaseshelper.model.config.Config;
+import com.utils.releaseshelper.model.error.BusinessException;
+import com.utils.releaseshelper.model.logic.process.OperatingSystemCommandErrorRemediation;
 import com.utils.releaseshelper.model.service.process.OperatingSystemCommandServiceModel;
 import com.utils.releaseshelper.model.service.process.OperatingSystemRunCommandServiceInput;
 import com.utils.releaseshelper.service.Service;
-import com.utils.releaseshelper.utils.RetryUtils;
+import com.utils.releaseshelper.utils.ErrorRemediationUtils;
 import com.utils.releaseshelper.view.CommandLineInterface;
 import com.utils.releaseshelper.view.output.CommandLineOutputHandler;
 import com.utils.releaseshelper.view.output.DefaultCommandLineOutputHandler;
@@ -43,35 +45,33 @@ public class OperatingSystemService implements Service {
 				cli.println();
 			}
 			
-			runCommandWithRetries(folder, commands.get(i));
+			runCommandWithErrorRemediation(folder, commands.get(i));
 		}
 	}
 	
-	private boolean runCommandWithRetries(File folder, OperatingSystemCommandServiceModel command) {
+	private boolean runCommandWithErrorRemediation(File folder, OperatingSystemCommandServiceModel command) {
 		
 		String commandValue = command.getCommand();
 		boolean suppressOutput = command.isSuppressOutput();
 		
 		CommandLineOutputHandler outputHandler = suppressOutput ? new DummyCommandLineOutputHandler() : new DefaultCommandLineOutputHandler(cli);
 		
-		boolean commandSuccess = RetryUtils.retry(cli, "Retry command", "Cannot run command", () -> {
-			
-			cli.println("Start running \"%s\" command...", commandValue);
-			
-			int statusCode = connector.runCommand(folder, commandValue, outputHandler);
-			if(statusCode != 0) {
+		return ErrorRemediationUtils.runWithErrorRemediation(
+			cli,
+			"Error running command",
+			OperatingSystemCommandErrorRemediation.values(),
+			() -> {
 				
-				throw new IllegalStateException("Command error, status code is " + statusCode);
+				cli.println("Start running \"%s\" command...", commandValue);
+				
+				int statusCode = connector.runCommand(folder, commandValue, outputHandler);
+				if(statusCode != 0) {
+					
+					throw new BusinessException("Command error, status code is " + statusCode);
+				}
+				
+				cli.println("Command \"%s\" successfully completed!", commandValue);
 			}
-			
-			cli.println("Command \"%s\" successfully completed!", commandValue);
-		});
-		
-		if(!commandSuccess) {
-			
-			cli.println("Command skipped");
-		}
-
-		return commandSuccess;
+		);
 	}
 }

@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.utils.releaseshelper.model.error.ValidationException;
+
 import lombok.experimental.UtilityClass;
 
 /**
