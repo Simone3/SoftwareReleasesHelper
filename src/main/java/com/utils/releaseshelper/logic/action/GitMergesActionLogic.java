@@ -63,7 +63,7 @@ public class GitMergesActionLogic extends ActionLogic<GitMergesAction> {
 	protected void doRunAction(ValuesDefiner valuesDefiner) {
 		
 		GitMergesServiceInput mergesInput = mapMergesServiceInput(valuesDefiner);
-		gitService.merges(mergesInput);
+		gitService.merge(mergesInput);
 	}
 
 	@Override

@@ -1,8 +1,10 @@
 package com.utils.releaseshelper.service.git;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.MergeResult.MergeStatus;
@@ -89,23 +91,25 @@ public class GitService implements Service {
 		}
 	}
 
-	public void merges(GitMergesServiceInput mergesInput) {
+	public void merge(GitMergesServiceInput mergesInput) {
 		
 		String repositoryFolder = mergesInput.getRepositoryFolder();
 		List<GitMergeServiceModel> merges = mergesInput.getMerges();
 
 		try(GitRepository git = connector.getRepository(repositoryFolder)) {
 			
-			for(int i = 0; i < merges.size(); i++) {
-				
-				if(i != 0) {
-					
-					cli.println();
-				}
-				
-				prepareAndMerge(git, merges.get(i));
-			}
+			String originalBranch = connector.getCurrentBranch(git);
+			
+			checkAndMerge(git, merges);
+			
+			connector.switchBranch(git, originalBranch);
+			
+			cli.println();
+			cli.println("Switched to %s (original branch)", originalBranch);
 		}
+		
+		cli.println();
+		cli.println(merges.size() == 1 ? "Merge completed. Don't forget to manually push the target branch!" : "All merges completed. Don't forget to manually push the target branches!");
 	}
 
 	private void checkWorkingTreeClean(GitRepository git) {
@@ -117,25 +121,25 @@ public class GitService implements Service {
 		
 		cli.println("Working tree is clean");
 	}
-	
-	private void prepareAndMerge(GitRepository git, GitMergeServiceModel merge) {
+
+	private void checkAndMerge(GitRepository git, List<GitMergeServiceModel> merges) {
 		
-		checkWorkingTreeClean(git);
+		Set<String> pulledBranches = new HashSet<>();
 		
-		String originalBranch = connector.getCurrentBranch(git);
-		
-		doActualMerge(git, merge);
-		
-		connector.switchBranch(git, originalBranch);
-		
-		cli.println();
-		cli.println("Switched to %s (original branch)", originalBranch);
-		
-		cli.println();
-		cli.println("Merge completed. Don't forget to manually push the target branch!");
+		for(int i = 0; i < merges.size(); i++) {
+			
+			if(i != 0) {
+				
+				cli.println();
+			}
+			
+			checkWorkingTreeClean(git);
+			
+			doActualMerge(git, merges.get(i), pulledBranches);
+		}
 	}
 	
-	private void doActualMerge(GitRepository git, GitMergeServiceModel merge) {
+	private void doActualMerge(GitRepository git, GitMergeServiceModel merge, Set<String> pulledBranches) {
 		
 		boolean pull = merge.isPull();
 		String sourceBranch = merge.getSourceBranch();
@@ -148,19 +152,21 @@ public class GitService implements Service {
 		
 		checkBranchesExistWithRetries(git, sourceBranch, targetBranch);
 		
-		if(pull) {
+		if(pull && !pulledBranches.contains(sourceBranch)) {
 			
 			connector.switchBranch(git, sourceBranch);
 			cli.println("Switched to %s (source branch)", sourceBranch);
 			
+			pulledBranches.add(sourceBranch);
 			pullWithRetries(git, gitConfig, sourceBranch);
 		}
 		
 		connector.switchBranch(git, targetBranch);
 		cli.println("Switched to %s (target branch)", targetBranch);
 
-		if(pull) {
-			
+		if(pull && !pulledBranches.contains(targetBranch)) {
+
+			pulledBranches.add(targetBranch);
 			pullWithRetries(git, gitConfig, targetBranch);
 		}
 		
