@@ -57,7 +57,7 @@ public class ActionMapperValidator {
 			}
 			catch(Exception e) {
 				
-				throw new ValidationException("Invalid action at index " + i + " -> " + e.getMessage());
+				throw new ValidationException("Invalid action at index " + i + " -> " + e.getMessage(), e);
 			}
 
 			String actionName = action.getName();
@@ -120,7 +120,7 @@ public class ActionMapperValidator {
 			}
 			catch(Exception e) {
 				
-				throw new ValidationException("Invalid action at index " + i + " -> " + e.getMessage());
+				throw new ValidationException("Invalid action at index " + i + " -> " + e.getMessage(), e);
 			}
 			
 			actions.add(action);
@@ -162,7 +162,7 @@ public class ActionMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Define variables action has an invalid list of variables -> " + e.getMessage());
+			throw new ValidationException("Define variables action has an invalid list of variables -> " + e.getMessage(), e);
 		}
 
 		DefineVariablesAction action = new DefineVariablesAction();
@@ -184,7 +184,7 @@ public class ActionMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Maven commands action has an invalid list of commands -> " + e.getMessage());
+			throw new ValidationException("Maven commands action has an invalid list of commands -> " + e.getMessage(), e);
 		}
 		
 		GitCommit gitCommit = null;
@@ -196,7 +196,7 @@ public class ActionMapperValidator {
 			}
 			catch(Exception e) {
 				
-				throw new ValidationException("Maven commands action has an invalid Git commit definition -> " + e.getMessage());
+				throw new ValidationException("Maven commands action has an invalid Git commit definition -> " + e.getMessage(), e);
 			}
 		}
 		
@@ -209,7 +209,7 @@ public class ActionMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Maven commands action has an invalid project folder -> " + e.getMessage());
+			throw new ValidationException("Maven commands action has an invalid project folder -> " + e.getMessage(), e);
 		}
 		
 		MavenCommandsAction action = new MavenCommandsAction();
@@ -233,7 +233,7 @@ public class ActionMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Operating system commands action has an invalid list of commands -> " + e.getMessage());
+			throw new ValidationException("Operating system commands action has an invalid list of commands -> " + e.getMessage(), e);
 		}
 		
 		GitCommit gitCommit = null;
@@ -245,7 +245,7 @@ public class ActionMapperValidator {
 			}
 			catch(Exception e) {
 				
-				throw new ValidationException("Operating system commands action has an invalid Git commit definition -> " + e.getMessage());
+				throw new ValidationException("Operating system commands action has an invalid Git commit definition -> " + e.getMessage(), e);
 			}
 		}
 		
@@ -256,7 +256,7 @@ public class ActionMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Operating system commands action has an invalid folder -> " + e.getMessage());
+			throw new ValidationException("Operating system commands action has an invalid folder -> " + e.getMessage(), e);
 		}
 		
 		OperatingSystemCommandsAction action = new OperatingSystemCommandsAction();
@@ -280,7 +280,7 @@ public class ActionMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Git merges action has an invalid list of merges -> " + e.getMessage());
+			throw new ValidationException("Git merges action has an invalid list of merges -> " + e.getMessage(), e);
 		}
 		
 		String fullRepositoryFolder = FileUtils.getFullPath(gitProperties == null ? null : gitProperties.getBasePath(), repositoryFolderProperty);
@@ -292,7 +292,7 @@ public class ActionMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Git merges action has an invalid repository folder -> " + e.getMessage());
+			throw new ValidationException("Git merges action has an invalid repository folder -> " + e.getMessage(), e);
 		}
 
 		GitMergesAction action = new GitMergesAction();
@@ -317,7 +317,7 @@ public class ActionMapperValidator {
 			}
 			catch(Exception e) {
 				
-				throw new ValidationException("Jenkins build action has an invalid list of parameters -> " + e.getMessage());
+				throw new ValidationException("Jenkins build action has an invalid list of parameters -> " + e.getMessage(), e);
 			}
 		}
 		
@@ -330,7 +330,7 @@ public class ActionMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Jenkins build action has an invalid project folder -> " + e.getMessage());
+			throw new ValidationException("Jenkins build action has an invalid project folder -> " + e.getMessage(), e);
 		}
 		
 		JenkinsBuildAction action = new JenkinsBuildAction();

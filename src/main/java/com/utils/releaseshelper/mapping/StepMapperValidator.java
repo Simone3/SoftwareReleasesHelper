@@ -48,7 +48,7 @@ public class StepMapperValidator {
 			}
 			catch(Exception e) {
 				
-				throw new ValidationException("Invalid step at index " + i + " -> " + e.getMessage());
+				throw new ValidationException("Invalid step at index " + i + " -> " + e.getMessage(), e);
 			}
 
 			steps.add(step);
@@ -95,7 +95,7 @@ public class StepMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Invalid actions for step -> " + e.getMessage());
+			throw new ValidationException("Invalid actions for step -> " + e.getMessage(), e);
 		}
 		
 		RunActionsStep step = new RunActionsStep();
@@ -116,7 +116,7 @@ public class StepMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Invalid projects for step -> " + e.getMessage());
+			throw new ValidationException("Invalid projects for step -> " + e.getMessage(), e);
 		}
 		
 		// Save all projects to validate the project-actions map in "RUN_ACTIONS_FOR_EACH_PROJECT" step
@@ -147,7 +147,7 @@ public class StepMapperValidator {
 			}
 			catch(Exception e) {
 				
-				throw new ValidationException("Invalid actions for step (project name " + nameProperty + ") -> " + e.getMessage());
+				throw new ValidationException("Invalid actions for step (project name " + nameProperty + ") -> " + e.getMessage(), e);
 			}
 		}
 		

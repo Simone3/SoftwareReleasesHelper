@@ -35,7 +35,7 @@ public class ProjectMapperValidator {
 			}
 			catch(Exception e) {
 				
-				throw new ValidationException("Invalid project at index " + i + " -> " + e.getMessage());
+				throw new ValidationException("Invalid project at index " + i + " -> " + e.getMessage(), e);
 			}
 
 			if(projectNames.contains(projectProperty)) {

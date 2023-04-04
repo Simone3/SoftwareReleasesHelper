@@ -51,7 +51,7 @@ public class MavenMapperValidator {
 			}
 			catch(Exception e) {
 				
-				throw new ValidationException("Invalid Maven command at index " + i + " -> " + e.getMessage());
+				throw new ValidationException("Invalid Maven command at index " + i + " -> " + e.getMessage(), e);
 			}
 
 			mavenCommands.add(mavenCommand);
@@ -76,7 +76,7 @@ public class MavenMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Invalid Maven command goals -> " + e.getMessage());
+			throw new ValidationException("Invalid Maven command goals -> " + e.getMessage(), e);
 		}
 		
 		List<VariableDefinition> arguments = new ArrayList<>();
@@ -88,7 +88,7 @@ public class MavenMapperValidator {
 			}
 			catch(Exception e) {
 				
-				throw new ValidationException("Maven command has an invalid list of arguments -> " + e.getMessage());
+				throw new ValidationException("Maven command has an invalid list of arguments -> " + e.getMessage(), e);
 			}
 		}
 		

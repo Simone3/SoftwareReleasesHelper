@@ -34,7 +34,7 @@ public class OperatingSystemMapperValidator {
 			}
 			catch(Exception e) {
 				
-				throw new ValidationException("Invalid operating system command at index " + i + " -> " + e.getMessage());
+				throw new ValidationException("Invalid operating system command at index " + i + " -> " + e.getMessage(), e);
 			}
 
 			operatingSystemCommands.add(operatingSystemCommand);
@@ -57,7 +57,7 @@ public class OperatingSystemMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Invalid operating system command -> " + e.getMessage());
+			throw new ValidationException("Invalid operating system command -> " + e.getMessage(), e);
 		}
 		
 		OperatingSystemCommand operatingSystemCommand = new OperatingSystemCommand();

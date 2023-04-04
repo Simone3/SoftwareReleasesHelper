@@ -39,7 +39,7 @@ public class ProcedureMapperValidator {
 			}
 			catch(Exception e) {
 				
-				throw new ValidationException("Invalid procedure at index " + i + " -> " + e.getMessage());
+				throw new ValidationException("Invalid procedure at index " + i + " -> " + e.getMessage(), e);
 			}
 
 			String procedureName = procedureProperty.getName();
@@ -68,7 +68,7 @@ public class ProcedureMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Invalid steps for procedure -> " + e.getMessage());
+			throw new ValidationException("Invalid steps for procedure -> " + e.getMessage(), e);
 		}
 		
 		Procedure procedure = new Procedure();

@@ -55,7 +55,7 @@ public class VariablesMapperValidator {
 			}
 			catch(Exception e) {
 				
-				throw new ValidationException("Invalid value definition at index " + i + " -> " + e.getMessage());
+				throw new ValidationException("Invalid value definition at index " + i + " -> " + e.getMessage(), e);
 			}
 		}
 		
@@ -188,7 +188,7 @@ public class VariablesMapperValidator {
 			}
 			catch(Exception e) {
 				
-				throw new ValidationException("Invalid variable definition at index " + i + " -> " + e.getMessage());
+				throw new ValidationException("Invalid variable definition at index " + i + " -> " + e.getMessage(), e);
 			}
 		}
 		

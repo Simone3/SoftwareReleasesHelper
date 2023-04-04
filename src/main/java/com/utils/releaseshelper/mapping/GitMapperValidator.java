@@ -46,7 +46,7 @@ public class GitMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Invalid commit branch -> " + e.getMessage());
+			throw new ValidationException("Invalid commit branch -> " + e.getMessage(), e);
 		}
 		
 		ValueDefinition message;
@@ -56,7 +56,7 @@ public class GitMapperValidator {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException("Invalid commit message -> " + e.getMessage());
+			throw new ValidationException("Invalid commit message -> " + e.getMessage(), e);
 		}
 		
 		GitCommit commit = new GitCommit();

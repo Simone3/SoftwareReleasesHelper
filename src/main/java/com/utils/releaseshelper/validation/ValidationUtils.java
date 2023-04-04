@@ -63,7 +63,7 @@ public class ValidationUtils {
 		}
 		catch(Exception e) {
 			
-			throw new ValidationException(message);
+			throw new ValidationException(message, e);
 		}
 	}
 	
