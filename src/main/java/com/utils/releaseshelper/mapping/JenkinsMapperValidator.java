@@ -21,6 +21,7 @@ public class JenkinsMapperValidator {
 		String crumbUrl = ValidationUtils.notBlank(jenkinsProperties.getCrumbUrl(), "Jenkins crumb URL is empty");
 		String username = ValidationUtils.notBlank(jenkinsProperties.getUsername(), "Jenkins username is empty");
 		String password = ValidationUtils.notBlank(jenkinsProperties.getPassword(), "Jenkins password is empty");
+		Boolean useCrumb = jenkinsProperties.getUseCrumb();
 		Boolean insecureHttps = jenkinsProperties.getInsecureHttps();
 		Integer timeoutMilliseconds = ValidationUtils.positive(jenkinsProperties.getTimeoutMilliseconds(), "Jenkins timeout is empty or invalid");
 		
@@ -30,6 +31,7 @@ public class JenkinsMapperValidator {
 		jenkinsConfig.setCrumbUrl(fullCrumbUrl);
 		jenkinsConfig.setUsername(username);
 		jenkinsConfig.setPassword(password);
+		jenkinsConfig.setUseCrumb(useCrumb != null && useCrumb);
 		jenkinsConfig.setInsecureHttps(insecureHttps != null && insecureHttps);
 		jenkinsConfig.setTimeoutMilliseconds(timeoutMilliseconds);
 		return jenkinsConfig;

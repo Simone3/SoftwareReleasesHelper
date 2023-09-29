@@ -11,6 +11,7 @@ public class JenkinsConfig {
 	private String crumbUrl;
 	private String username;
 	private String password;
+	private boolean useCrumb;
 	private boolean insecureHttps;
 	private int timeoutMilliseconds;
 }

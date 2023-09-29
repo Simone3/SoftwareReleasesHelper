@@ -14,6 +14,7 @@ jenkins:
   crumb-url: '/crumbIssuer/api/json'
   username: 'my-jenkins-user'
   password: 'my-jenkins-password'
+  use-crumb: false
   insecure-https: false
   timeout-milliseconds: 5000
 

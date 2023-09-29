@@ -97,6 +97,7 @@ public class MainLogic extends StateLogic<MainState> {
 			cli.println("  - Crumb URL: %s", StringUtils.defaultIfBlank(jenkins.getCrumbUrl(), ""));
 			cli.println("  - Username: %s", StringUtils.defaultIfBlank(jenkins.getUsername(), ""));
 			cli.println("  - Password: %s", password);
+			cli.println("  - Use crumb: %s", jenkins.isUseCrumb());
 			cli.println("  - Insecure HTTPS: %s", jenkins.isInsecureHttps());
 			cli.println("  - Timeout (ms): %s", jenkins.getTimeoutMilliseconds());
 			cli.println();

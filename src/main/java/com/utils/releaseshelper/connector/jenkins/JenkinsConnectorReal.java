@@ -1,16 +1,20 @@
 package com.utils.releaseshelper.connector.jenkins;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.utils.releaseshelper.model.config.JenkinsConfig;
 import com.utils.releaseshelper.model.dto.CrumbResponse;
@@ -62,27 +66,41 @@ public class JenkinsConnectorReal implements JenkinsConnector {
 	}
 	
 	@Override
-	public String getCrumb(String crumbUrl, String username, String password) {
+	public CrumbData getCrumb(String crumbUrl, String username, String password) {
 		
-		CrumbResponse response = webClient
+		CrumbData crumbData = new CrumbData();
+		
+		CrumbResponse crumbResponseBody = webClient
 			.get()
 			.uri(crumbUrl)
 			.headers(headers -> headers.setBasicAuth(username, password))
-			.retrieve()
-			.onStatus(status -> !status.is2xxSuccessful(), this::onErrorHttpStatus)
-			.bodyToMono(CrumbResponse.class)
+			.exchangeToMono(response -> {
+				
+				if(response.statusCode().is2xxSuccessful()) {
+					
+					crumbData.setCookies(getResponseCookies(response));
+					return response.bodyToMono(CrumbResponse.class);
+				}
+				else {
+					
+					return response.createException().flatMap(Mono::error);
+				}
+			})
+			.onErrorMap(WebClientResponseException.class, e -> new IllegalStateException("Error status: " + e.getStatusCode() + " - Body: " + e.getResponseBodyAsString()))
 			.block();
 		
-		if(response == null || StringUtils.isBlank(response.getCrumb())) {
+		if(crumbResponseBody == null || StringUtils.isBlank(crumbResponseBody.getCrumb())) {
 			
 			throw new BusinessException("No Jenkins crumb received");
 		}
 		
-		return response.getCrumb();
+		crumbData.setCrumb(crumbResponseBody.getCrumb());
+		
+		return crumbData;
 	}
 
 	@Override
-	public void startBuild(String buildUrl, String username, String password, String crumb, Map<String, String> parameters) {
+	public void startBuild(String buildUrl, String username, String password, CrumbData crumbData, Map<String, String> parameters) {
 		
 		MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
 		for(Entry<String, String> parameter: parameters.entrySet()) {
@@ -97,17 +115,37 @@ public class JenkinsConnectorReal implements JenkinsConnector {
 				.build()
 			)
 			.headers(headers -> headers.setBasicAuth(username, password))
-			.headers(headers -> headers.add("Jenkins-Crumb", crumb))
+			.headers(headers -> {
+				if(crumbData != null) {
+					headers.add("Jenkins-Crumb", crumbData.getCrumb());
+				}
+			})
+			.cookies(cookies -> {
+				if(crumbData != null) {
+					cookies.addAll(crumbData.getCookies());
+				}
+			})
 			.retrieve()
-			.onStatus(status -> !status.is2xxSuccessful(), this::onErrorHttpStatus)
+			.onStatus(status -> !status.is2xxSuccessful(), httpResponse ->
+				httpResponse
+					.bodyToMono(String.class)
+					.map(httpResponseString -> new IllegalStateException("Error status: " + httpResponse.statusCode() + " - Body: " + httpResponseString)))
 			.bodyToMono(CrumbResponse.class)
 			.block();
 	}
-
-	private Mono<? extends Throwable> onErrorHttpStatus(ClientResponse httpResponse) {
+	
+	private MultiValueMap<String, String> getResponseCookies(ClientResponse response) {
 		
-		return httpResponse
-			.bodyToMono(String.class)
-			.map(httpResponseString -> new IllegalStateException("Error status: " + httpResponse.statusCode() + " - Body: " + httpResponseString));
+		MultiValueMap<String, String> cookies = new LinkedMultiValueMap<>();
+		
+		for(Entry<String, List<ResponseCookie>> entry: response.cookies().entrySet()) {
+			
+			if(!StringUtils.isBlank(entry.getKey()) && !CollectionUtils.isEmpty(entry.getValue())) {
+				
+				cookies.add(entry.getKey(), entry.getValue().get(0).getName());
+			}
+		}
+		
+		return cookies;
 	}
 }

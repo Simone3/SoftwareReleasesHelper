@@ -3,6 +3,7 @@ package com.utils.releaseshelper.service.jenkins;
 import java.util.Map;
 
 import com.utils.releaseshelper.connector.jenkins.JenkinsConnector;
+import com.utils.releaseshelper.connector.jenkins.JenkinsConnector.CrumbData;
 import com.utils.releaseshelper.connector.jenkins.JenkinsConnectorMock;
 import com.utils.releaseshelper.connector.jenkins.JenkinsConnectorReal;
 import com.utils.releaseshelper.model.config.Config;
@@ -21,7 +22,8 @@ public class JenkinsService implements Service {
 
 	private final JenkinsConfig jenkinsConfig;
 	
-	private String crumb;
+	// TODO move to state
+	private CrumbData crumbData;
 
 	public JenkinsService(Config config, CommandLineInterface cli) {
 		
@@ -43,15 +45,15 @@ public class JenkinsService implements Service {
 
 	private void doStartBuild(String crumbUrl, String buildUrl, String username, String password, Map<String, String> parameters) {
 		
-		if(crumb == null) {
+		if(jenkinsConfig.isUseCrumb() && crumbData == null) {
 			
 			cli.println("Getting Jenkins crumb...");
-			crumb = connector.getCrumb(crumbUrl, username, password);
-			cli.println("Got Jenkins crumb: %s", crumb);
+			crumbData = connector.getCrumb(crumbUrl, username, password);
+			cli.println("Got Jenkins crumb: %s", crumbData.getCrumb());
 		}
 		
 		cli.println("Starting build...");
-		connector.startBuild(buildUrl, username, password, crumb, parameters);
+		connector.startBuild(buildUrl, username, password, crumbData, parameters);
 		cli.println("Build started successfully!");
 	}
 }
