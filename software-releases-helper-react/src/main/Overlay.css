@@ -1,0 +1,24 @@
+.disconnected-error-container {
+	position: fixed;
+	top: 10px;
+	right: 10px;
+	background-color: red;
+	padding: 10px;
+	border-radius: 25px;
+	z-index: 200;
+	user-select: none;
+}
+
+.disconnected-error {
+	color: white;
+	text-align: center;
+}
+
+.disconnected-error-tooltip {
+	display: none;
+}
+
+.disconnected-error-container:hover .disconnected-error-tooltip {
+	display: initial;
+	color: inherit;
+}

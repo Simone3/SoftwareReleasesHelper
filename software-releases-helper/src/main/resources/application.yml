@@ -1,0 +1,21 @@
+
+logging:
+  level:
+    root: off
+
+spring:
+  profiles:
+    active:
+      - actions
+      - configuration
+
+server:
+  port: 10333
+
+
+
+
+
+
+
+

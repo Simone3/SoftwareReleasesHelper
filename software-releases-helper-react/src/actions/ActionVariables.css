@@ -1,0 +1,22 @@
+
+.action-variables {
+	margin-bottom: 50px;
+}
+
+.inputs-container {
+	margin-top: 10px;
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.input-container {
+	padding: 5px 10px;
+}
+
+.input-label {
+	color: grey;
+	font-size: 0.8em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

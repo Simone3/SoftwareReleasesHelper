@@ -1,0 +1,148 @@
+
+# Testing mode, if true actions will do nothing
+test-mode: true
+
+# Print passwords to console
+print-passwords: false
+
+# Run mode
+web-gui: true
+
+# Global Git configuration, if Git actions are defined
+git:
+  base-path: '~/Desktop/example'
+  username: 'my-git-user'
+  password: 'my-git-password'
+  merge-message: 'Merge branch ''#[SOURCE_BRANCH]'' into ''#[TARGET_BRANCH]'' (auto-merge)'
+  timeout-milliseconds: 5000
+ 
+#  Global Jenkins configuration, if Jenkins actions are defined
+jenkins:
+  base-url: 'http://myjenkins.com'
+  crumb-url: '/crumbIssuer/api/json'
+  username: 'my-jenkins-user'
+  password: 'my-jenkins-password'
+  use-crumb: true
+  insecure-https: false
+  timeout-milliseconds: 5000
+
+
+action-definitions:
+
+  # Jenkins Action that runs a buildWithParameters with 4 parameters (URL and parameters are dynamically
+  # defined by 4 variables)
+  -
+    name: 'Sample Jenkins Action 1'
+    type: JENKINS_BUILD
+    variables:
+      # A dropdown input variable with 3 options and a default value
+      -
+        key: 'environment'
+        type: STRICT_SELECT
+        value: 'env-1'
+        options:
+          - 'env-1'
+          - 'env-2'
+          - 'env-3'
+      # A dropdown input variable that also allows to write free text 
+      -
+        key: 'project'
+        type: FREE_SELECT
+        remove-whitespace: true
+        value: 'prj-2'
+        options:
+          - 'prj-1'
+          - 'prj-2'
+      # A free text input variable that disallows whitespace characters
+      -
+        key: 'version'
+        type: TEXT
+        remove-whitespace: true
+        value: '1.0.0'
+      # A fixed variable that cannot be modified by the user, just for reuse purposes
+      -
+        key: 'application'
+        type: STATIC
+        value: 'a fixed variable'
+    jenkins-build-definition:
+      url: '/job/#[environment]/job/#[project]/buildWithParameters'
+      parameters:
+      -
+        key: 'version'
+        value: '#[version]'
+      -
+        key: 'build_version'
+        value: '1.2.3'
+      -
+        key: 'app'
+        value: '#[application]'
+      -
+        key: 'description'
+        value: 'build of #[project] on environment #[environment]'
+
+  # Git Merges Action that merges some branches on a Git repo (URL and branches are dynamically defined
+  # by 2 variables, e.g. by default it will merge develop into release, then release into master,
+  # then hotfix into master but branches can be manually changed by the user)
+  -
+    name: 'Sample Git Merges Action 1'
+    type: GIT_MERGES
+    variables:
+      -
+        key: 'folder'
+        type: FREE_SELECT
+        options:
+          - 'my-folder-1'
+          - 'My Folder 2'
+      -
+        key: 'merges'
+        type: TEXT
+        value: 'develop -> release -> master; hotfix -> master'
+    git-merges-definition:
+      repository-folder: '/container/#[folder]'
+      merges: '#[merges]'
+      pull: true
+
+  # Operating System Commands Action that runs two commands on a folder (folder and commands are
+  # dynamically defined by 2 variables)
+  -
+    name: 'Sample OS Commands Action 1'
+    type: OPERATING_SYSTEM_COMMANDS
+    variables:
+      -
+        key: 'project'
+        type: FREE_SELECT
+        options:
+          - 'project1'
+          - 'project2'
+      -
+        key: 'version'
+        type: TEXT
+    os-commands-definition:
+      folder: '~/Desktop/my-repos/#[project]'
+      commands:
+      -
+        command: 'mvn versions:set -DnewVersion=#[version] -DgenerateBackupPoms=false'
+        suppress-output: false
+      -
+        command: 'echo "version is #[version]" > tracker.txt'
+        suppress-output: true
+      git-commit:
+        branch: develop
+        commit-message: 'This is a custom commit message with variable #[version]'
+        pull: true
+
+  # Jenkins Action that runs a buildWithParameters with 2 parameters (URL and parameters are all static
+  # without variables)
+  -
+    name: 'Sample Jenkins Action 2'
+    type: JENKINS_BUILD
+    jenkins-build-definition:
+      url: '/job/my-location/job/my-job/buildWithParameters'
+      parameters:
+      -
+        key: 'project'
+        value: 'my-project'
+      -
+        key: 'version'
+        value: '1.0.0-SNAPSHOT'
+

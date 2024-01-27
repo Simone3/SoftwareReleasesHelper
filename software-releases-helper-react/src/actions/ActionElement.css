@@ -1,0 +1,15 @@
+
+.action-list-element {
+	cursor: pointer;
+	width: fit-content;
+	margin-bottom: 20px;
+}
+
+.action-name {
+	font-size: 1.1em;
+}
+
+.action-type {
+	font-size: 0.75em;
+	color: grey;
+}

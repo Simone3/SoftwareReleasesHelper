@@ -1,0 +1,27 @@
+
+.history-element {
+	border-left: 3px solid white;
+	padding-left: 10px;
+	margin-bottom: 20px;
+}
+
+.history-element-date {
+	font-size: 0.65em;
+	 color: grey;
+}
+
+.history-element-info {
+	border-color: blue;
+}
+
+.history-element-warning {
+	border-color: orange;
+}
+
+.history-element-error {
+	border-color: red;
+}
+
+.history-element-success {
+	border-color: green;
+}

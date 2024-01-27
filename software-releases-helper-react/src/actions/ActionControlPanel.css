@@ -1,0 +1,49 @@
+
+.action-button {
+	font-weight: bold;
+	border: none;
+	border-radius: 5px;
+	padding: 10px 20px;
+	cursor: pointer;
+	margin-right: 10px;
+}
+
+.action-button-start {
+	color: white;
+	background-color: #228B22;
+}
+
+.action-button-resume {
+	color: white;
+	background-color: #FFBF00;
+}
+
+.action-button-cancel {
+	color: white;
+	background-color: #FF2400;
+}
+
+.action-button:disabled {
+	cursor: auto;
+	background-color: #D3D3D3;
+}
+
+.loader {
+	width: 0.8em;
+	height: 0.8em;
+	border: 2px solid #FFF;
+	border-bottom-color: transparent;
+	border-radius: 50%;
+	display: inline-block;
+	box-sizing: border-box;
+	animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}

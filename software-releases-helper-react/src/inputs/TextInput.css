@@ -1,0 +1,22 @@
+
+.text-input {
+	display: block;
+	font-size: 0.9em;
+}
+
+.text-input-container {
+	height: 25px;
+	border: 1px solid #888;
+	border-radius: 4px;
+}
+
+.text-input-value {
+	padding: 0px 5px 0px 5px;
+	margin: 0;
+	line-height: 25px;
+	border: 0;
+	background-color: transparent;
+	font-size: inherit;
+	font-family: inherit;
+	width: calc(100% - 10px);
+}

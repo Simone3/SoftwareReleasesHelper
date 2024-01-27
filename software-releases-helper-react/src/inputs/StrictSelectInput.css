@@ -1,0 +1,125 @@
+
+.strict-select-input {
+	position: relative;
+	display: block;
+	font-size: 0.9em;
+}
+
+.strict-select-input-fixed-container {
+	display: flex;
+	border: 1px solid #888;
+	height: 25px;
+	border-radius: 4px;
+}
+
+.strict-select-input-open .strict-select-input-fixed-container {
+	border-radius: 4px 4px 0 0;
+}
+
+.strict-select-input-value {
+	cursor: pointer;
+	flex: 1;
+	padding-left: 5px;
+	user-select: none;
+	vertical-align: middle;
+	line-height: 25px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.strict-select-input-value-placeholder {
+	color: gray;
+}
+
+.strict-select-input-disabled .strict-select-input-value {
+	color: gray;
+	cursor: auto;
+}
+
+.strict-select-input-arrow-container {
+	cursor: pointer;
+	width: 20px;
+}
+
+.strict-select-input-disabled .strict-select-input-arrow-container {
+	color: blue;
+	cursor: auto;
+}
+
+.strict-select-input-arrow-container > div {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.strict-select-input-arrow {
+	border-style: solid;
+	height: 0;
+	width: 0;
+	font-weight: 600;
+	box-sizing: border-box;
+	position: absolute;
+	top: 10px; /* (input height - this top border) / 2 */
+	left: 6px; /* (arrow width - this left border - this right border) / 2 */
+	border-color: #888 transparent transparent transparent;
+	border-width: 5px 4px 0 4px;
+}
+
+.strict-select-input-open .strict-select-input-arrow {
+	border-color: transparent transparent #888 transparent;
+	border-width: 0 4px 5px 4px;
+}
+
+.strict-select-input-dropdown-container {
+	position: absolute;
+	width: calc(100% - 2px);
+	top: 100%;
+	z-index: 100;
+	background-color: white;
+	box-shadow: inset 0 1px 3px rgba(0,0,0,.06);
+	transition: border-color;
+	border-radius: 0 0 4px 4px;
+	border: 1px solid #888;
+	border-top: 0;
+}
+
+.strict-select-input-closed .strict-select-input-dropdown-container {
+	display: none;
+}
+
+.strict-select-input-search {
+	width: calc(100% - 12px);
+	box-sizing: border-box;
+	margin: 6px 6px 3px 6px;
+	padding: 0px 5px 0px 5px;
+}
+
+.strict-select-input-options-container {
+	width: 100%;
+}
+
+.strict-select-input-options {
+	width: 100%;
+	list-style: none;
+	max-height: 200px;
+	margin: 0;
+	padding: 0;	
+}
+
+.strict-select-input-option {
+	cursor: pointer;
+	user-select: none;
+	padding: 6px;
+}
+
+.strict-select-input-option:hover {
+	background: #f2f2f2;
+	border-radius: 4px;
+}
+
+.strict-select-input-options-none {
+	font-style: italic;
+	margin: 6px;
+}
+
