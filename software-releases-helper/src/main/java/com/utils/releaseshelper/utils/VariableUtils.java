@@ -135,6 +135,11 @@ public class VariableUtils {
 	
 	private String removeWhitespace(String text) {
 		
+		if(text == null) {
+			
+			return null;
+		}
+		
 		return text
 			.replaceAll("\\s+", "")
 			.replace("\u200B", "");
