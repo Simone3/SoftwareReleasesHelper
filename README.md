@@ -26,7 +26,7 @@ This can be done with one or more standard [Spring Boot configuration files](htt
 
 The simplest way is to define an `application.yml` file in the same folder where the downloaded JAR is placed. As an alternative (or in addition to) the program also reads by default `application-actions.yml` and `application-configuration.yml`, but this can be overridden by defining custom Spring profiles.
 
-See [application-sample.yml](https://github.com/Simone3/SoftwareReleasesHelper/blob/main/src/main/resources/application-sample.yml) for a sample configuration file.
+See [application-sample.yml](https://raw.githubusercontent.com/Simone3/SoftwareReleasesHelper/main/software-releases-helper/src/main/resources/application-sample.yml) for a sample configuration file.
 
 #### Actions
 
