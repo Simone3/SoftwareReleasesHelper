@@ -51,6 +51,8 @@
 
 .free-select-input-options-container {
 	width: 100%;
+	overflow: auto;
+	max-height: 200px;
 }
 
 .free-select-input-options {

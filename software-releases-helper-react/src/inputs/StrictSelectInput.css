@@ -97,6 +97,8 @@
 
 .strict-select-input-options-container {
 	width: 100%;
+	overflow: auto;
+	max-height: 200px;
 }
 
 .strict-select-input-options {
