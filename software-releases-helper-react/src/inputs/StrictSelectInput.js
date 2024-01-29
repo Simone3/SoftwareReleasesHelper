@@ -27,14 +27,12 @@ const StrictSelectInput = ({ options, enabled, value, onChange }) => {
 
 	const onInputClick = enabled ?
 		() => {
-			if(!state.open) {
-				setState(() => {
-					return {
-						open: true,
-						filter: ''
-					};
-				});
-			}
+			setState(() => {
+				return {
+					open: !state.open,
+					filter: ''
+				};
+			});
 		} :
 		undefined;
 
@@ -46,10 +44,11 @@ const StrictSelectInput = ({ options, enabled, value, onChange }) => {
 	
 	return (
 		<div className={`strict-select-input strict-select-input-${state.open ? 'open' : 'closed'} strict-select-input-${enabled ? 'enabled' : 'disabled'}`} ref={ref}>
-			<div className='strict-select-input-fixed-container'>
+			<div
+				className='strict-select-input-fixed-container'
+				onClick={onInputClick}>
 				<div
-					className={`strict-select-input-value${value ? '' : ' strict-select-input-value-placeholder'}`}
-					onClick={onInputClick}>
+					className={`strict-select-input-value${value ? '' : ' strict-select-input-value-placeholder'}`}>
 					{value ? value : 'Type or select value...'}
 				</div>
 				<div className='strict-select-input-arrow-container'>
