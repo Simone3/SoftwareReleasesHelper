@@ -1,6 +1,7 @@
 package com.utils.releaseshelper.connector.git;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +11,10 @@ import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.errors.NoWorkTreeException;
+import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -19,8 +24,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.utils.releaseshelper.model.domain.GitConfig;
 import com.utils.releaseshelper.model.error.BusinessException;
-
-import lombok.SneakyThrows;
+import com.utils.releaseshelper.model.error.GitUnauthorizedException;
 
 /**
  * An implementation of the Git connector based on JGit
@@ -35,37 +39,63 @@ public class GitConnectorReal implements GitConnector {
 	}
 
 	@Override
-	@SneakyThrows
-	public GitRepository getRepository(String repositoryFolder) {
+	public GitRepository getRepository(String repositoryFolderPath) {
+
+		return getRepository(new File(repositoryFolderPath));
+	}
+
+	@Override
+	public GitRepository getRepository(File repositoryFolder) {
 		
 		File gitFolder = findGitRepository(repositoryFolder);
 		
-		Repository repository = new FileRepositoryBuilder()
-			.setGitDir(gitFolder)
-			.setMustExist(true)
-			.readEnvironment()
-			.build();
+		Repository repository;
+		try {
+			
+			repository = new FileRepositoryBuilder()
+				.setGitDir(gitFolder)
+				.setMustExist(true)
+				.readEnvironment()
+				.build();
+		}
+		catch(IOException e) {
+			
+			throw new BusinessException(e.getMessage(), e);
+		}
 		
 		return new GitRepository(repository);
 	}
 
 	@Override
-	@SneakyThrows
 	public boolean isWorkingTreeClean(GitRepository gitRepository) {
 		
-		Status status = gitRepository.getHandler().status().call();
+		Status status;
+		try {
+			
+			status = gitRepository.getHandler().status().call();
+		}
+		catch(NoWorkTreeException | GitAPIException e) {
+			
+			throw new BusinessException(e.getMessage(), e);
+		}
+		
 		return status.isClean();
 	}
 
 	@Override
-	@SneakyThrows
 	public String getCurrentBranch(GitRepository gitRepository) {
 		
-		return gitRepository.getHandler().getRepository().getBranch();
+		try {
+			
+			return gitRepository.getHandler().getRepository().getBranch();
+		}
+		catch(IOException e) {
+			
+			throw new BusinessException(e.getMessage(), e);
+		}
 	}
 
 	@Override
-	@SneakyThrows
 	public Set<String> checkNonExistingBranches(GitRepository gitRepository, Collection<String> branchesToCheck) {
 		
 		if(CollectionUtils.isEmpty(branchesToCheck)) {
@@ -73,7 +103,16 @@ public class GitConnectorReal implements GitConnector {
 			throw new IllegalStateException("No branch to check was provided");
 		}
 		
-		List<Ref> localBranches = gitRepository.getHandler().branchList().call();
+		List<Ref> localBranches;
+		try {
+			
+			localBranches = gitRepository.getHandler().branchList().call();
+		}
+		catch(GitAPIException e) {
+			
+			throw new BusinessException(e.getMessage(), e);
+		}
+		
 		Set<String> existingBranchesSet = new HashSet<>();
 		for(Ref localBranch: localBranches) {
 			
@@ -94,44 +133,80 @@ public class GitConnectorReal implements GitConnector {
 	}
 
 	@Override
-	@SneakyThrows
 	public Ref switchBranch(GitRepository gitRepository, String branch) {
 		
-		return gitRepository.getHandler().checkout().setName(branch).setCreateBranch(false).call();
+		try {
+			
+			return gitRepository.getHandler().checkout().setName(branch).setCreateBranch(false).call();
+		}
+		catch(GitAPIException e) {
+			
+			throw new BusinessException(e.getMessage(), e);
+		}
 	}
 	
 	@Override
-	@SneakyThrows
 	public void addAll(GitRepository gitRepository) {
 		
-		// Stage all files in the repo including new files, excluding deleted files
-        gitRepository.getHandler().add().addFilepattern(".").call();
-
-        // Stage all changed files, including deleted files, excluding new files
-        gitRepository.getHandler().add().addFilepattern(".").setUpdate(true).call();
+        try {
+        	
+        	// Stage all files in the repo including new files, excluding deleted files
+			gitRepository.getHandler().add().addFilepattern(".").call();
+			
+			// Stage all changed files, including deleted files, excluding new files
+	        gitRepository.getHandler().add().addFilepattern(".").setUpdate(true).call();
+		}
+        catch(GitAPIException e) {
+			
+        	throw new BusinessException("Error adding all", e);
+		}
 	}
 
 	@Override
-	@SneakyThrows
 	public void commit(GitRepository gitRepository, String message) {
 		
-        gitRepository
-        	.getHandler()
-        	.commit()
-            .setMessage(message)
-            .call();
+        try {
+        	
+			gitRepository
+				.getHandler()
+				.commit()
+			    .setMessage(message)
+			    .call();
+		}
+        catch(GitAPIException e) {
+			
+        	throw new BusinessException(e.getMessage(), e);
+		}
 	}
 	
 	@Override
-	@SneakyThrows
 	public PullResult pull(GitRepository gitRepository, String username, String password) {
 		
-		PullResult pullResult = gitRepository
-			.getHandler()
-			.pull()
-			.setTimeout(timeoutSeconds)
-			.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password))
-			.call();
+		PullResult pullResult;
+		try {
+			
+			pullResult = gitRepository
+				.getHandler()
+				.pull()
+				.setTimeout(timeoutSeconds)
+				.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password))
+				.call();
+		}
+		catch(TransportException e) {
+			
+			if(e.getMessage().contains("not authorized")) {
+				
+				throw new GitUnauthorizedException(e.getMessage(), e);
+			}
+			else {
+				
+				throw new BusinessException(e.getMessage(), e);
+			}
+		}
+		catch(GitAPIException e) {
+			
+			throw new BusinessException(e.getMessage(), e);
+		}
 		
 		if(!pullResult.isSuccessful()) {
 			
@@ -142,25 +217,30 @@ public class GitConnectorReal implements GitConnector {
 	}
 
 	@Override
-	@SneakyThrows
 	public MergeResult mergeIntoCurrentBranch(GitRepository gitRepository, String sourceBranch, String message) {
-		
-		ObjectId mergeSource = gitRepository.getHandler().getRepository().resolve(sourceBranch);
-		
-		return gitRepository
-			.getHandler()
-			.merge()
-            .include(mergeSource)
-            .setCommit(true)
-            .setFastForward(MergeCommand.FastForwardMode.NO_FF)
-            .setSquash(false)
-            .setMessage(message)
-            .call();
+
+		try {
+			
+			ObjectId mergeSource = gitRepository.getHandler().getRepository().resolve(sourceBranch);
+			
+			return gitRepository
+				.getHandler()
+				.merge()
+			    .include(mergeSource)
+			    .setCommit(true)
+			    .setFastForward(MergeCommand.FastForwardMode.NO_FF)
+			    .setSquash(false)
+			    .setMessage(message)
+			    .call();
+		}
+		catch(GitAPIException | RevisionSyntaxException | IOException e) {
+			
+			throw new BusinessException(e.getMessage(), e);
+		}
 	}
 	
-	private File findGitRepository(String folderPath) {
+	private File findGitRepository(File folder) {
 		
-		File folder = new File(folderPath);
 		String absoluteFolderPath = folder.getAbsolutePath();
 		
 		if(!folder.exists()) {

@@ -52,6 +52,22 @@ const ActionDescription = ({ action, variableValues }) => {
 		);
 	};
 
+	const renderGitPullAllDescription = () => {
+		return (
+			<div className='action-description'>
+				Pull all Git repositories:
+				<ul>
+					<li>
+						Parent folder: {Utils.replacePlaceholders(action.parentFolder, variableValues)}
+					</li>
+					<li>
+						Skip if working tree is dirty: {action.skipIfWorkingTreeDirty ? 'yes' : 'no'}
+					</li>
+				</ul>
+			</div>
+		);
+	};
+
 	const renderOsCommandsDescription = () => {
 		return (
 			<div className='action-description'>
@@ -91,6 +107,8 @@ const ActionDescription = ({ action, variableValues }) => {
 			return renderJenkinsBuildDescription();
 		case 'GIT_MERGES':
 			return renderGitMergesDescription();
+		case 'GIT_PULL_ALL':
+			return renderGitPullAllDescription();
 		case 'OPERATING_SYSTEM_COMMANDS':
 			return renderOsCommandsDescription();
 		default:

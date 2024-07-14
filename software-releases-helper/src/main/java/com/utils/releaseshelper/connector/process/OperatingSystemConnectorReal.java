@@ -2,14 +2,13 @@ package com.utils.releaseshelper.connector.process;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.commons.lang3.SystemUtils;
 
 import com.utils.releaseshelper.connector.CommandLineOutputHandler;
 import com.utils.releaseshelper.model.error.BusinessException;
-
-import lombok.SneakyThrows;
 
 /**
  * An implementation of the operating system connector based on the Java Runtime/Process classes
@@ -35,7 +34,6 @@ public class OperatingSystemConnectorReal implements OperatingSystemConnector {
 	}
 	
 	@Override
-	@SneakyThrows
 	public int runCommand(File folder, String command, CommandLineOutputHandler outputHandler) {
 
 		ProcessBuilder builder;
@@ -50,16 +48,28 @@ public class OperatingSystemConnectorReal implements OperatingSystemConnector {
 		
 		builder.directory(folder);
 
-		Process process = builder.start();
-
-		BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-		String line;
-		while((line = input.readLine()) != null) {
-
-			outputHandler.printLine(line);
+		try {
+			
+			Process process = builder.start();
+	
+			BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+	
+			String line;
+			while((line = input.readLine()) != null) {
+	
+				outputHandler.printLine(line);
+			}
+	
+			return process.waitFor();
 		}
-
-		return process.waitFor();
+		catch(InterruptedException e) {
+			
+			Thread.currentThread().interrupt();
+			throw new RuntimeException(e);
+		}
+		catch(IOException e) {
+			
+			throw new BusinessException(e.getMessage(), e);
+		}
 	}
 }

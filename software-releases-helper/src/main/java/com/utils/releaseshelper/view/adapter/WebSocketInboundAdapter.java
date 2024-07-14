@@ -5,12 +5,14 @@ import org.springframework.stereotype.Controller;
 
 import com.utils.releaseshelper.logic.CancelActionLogic;
 import com.utils.releaseshelper.logic.GitMergesActionLogic;
+import com.utils.releaseshelper.logic.GitPullAllActionLogic;
 import com.utils.releaseshelper.logic.InitSessionLogic;
 import com.utils.releaseshelper.logic.JenkinsBuildActionLogic;
 import com.utils.releaseshelper.logic.OperatingSystemCommandsActionLogic;
 import com.utils.releaseshelper.model.logic.CancelActionEvent;
 import com.utils.releaseshelper.model.logic.GitMergesActionEvent;
 import com.utils.releaseshelper.model.logic.GitMergesResumeActionEvent;
+import com.utils.releaseshelper.model.logic.GitPullAllActionEvent;
 import com.utils.releaseshelper.model.logic.InitSessionEvent;
 import com.utils.releaseshelper.model.logic.JenkinsBuildActionEvent;
 import com.utils.releaseshelper.model.logic.OperatingSystemCommandsActionEvent;
@@ -28,6 +30,7 @@ public class WebSocketInboundAdapter implements ViewAdapter {
 	private final CancelActionLogic cancelActionLogic;
 	private final JenkinsBuildActionLogic jenkinsBuildActionLogic;
 	private final GitMergesActionLogic gitMergesActionLogic;
+	private final GitPullAllActionLogic gitPullAllActionLogic;
 	private final OperatingSystemCommandsActionLogic operatingSystemCommandsActionLogic;
 	
 	@MessageMapping("/session/init/run")
@@ -64,5 +67,11 @@ public class WebSocketInboundAdapter implements ViewAdapter {
 	private void onRunOsCommandsAction(OperatingSystemCommandsActionEvent inboundEvent) {
 		
 		operatingSystemCommandsActionLogic.run(inboundEvent);
+	}
+	
+	@MessageMapping("/action/git/pull-all/run")
+	private void onRunGitMergesAction(GitPullAllActionEvent inboundEvent) {
+		
+		gitPullAllActionLogic.run(inboundEvent);
 	}
 }

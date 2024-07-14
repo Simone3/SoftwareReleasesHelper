@@ -1,6 +1,7 @@
 package com.utils.releaseshelper.context;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 import javax.annotation.PostConstruct;
@@ -21,7 +22,6 @@ import com.utils.releaseshelper.view.userinterface.CommandLineInterface;
 import com.utils.releaseshelper.view.userinterface.UserInterface;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -122,7 +122,6 @@ public class GlobalContext {
 		}
 	}
 	
-	@SneakyThrows
 	private void printSampleConfiguration(UserInterface cli) {
 		
 		cli.printLine();
@@ -140,6 +139,10 @@ public class GlobalContext {
 				cli.printLine(line);
 				line = reader.readLine();
 			}
+		}
+		catch(IOException e) {
+			
+			throw new BusinessException(e.getMessage(), e);
 		}
 		
 		cli.printSeparator();

@@ -1,5 +1,6 @@
 package com.utils.releaseshelper.connector.git;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,6 +33,13 @@ public class GitConnectorMock implements GitConnector {
 		return null;
 	}
 
+	@Override
+	public GitRepository getRepository(File repositoryFolder) {
+		
+		log.warn("Git operations disabled: skipping get repository with {}", repositoryFolder);
+		return null;
+	}
+	
 	@Override
 	public boolean isWorkingTreeClean(GitRepository gitRepository) {
 		

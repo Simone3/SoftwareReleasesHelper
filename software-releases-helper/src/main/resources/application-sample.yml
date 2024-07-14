@@ -102,6 +102,22 @@ action-definitions:
       merges: '#[merges]'
       pull: true
 
+  # Git Pull All Action that pulls all sub-folders inside a parent folder (finds all Git repositories
+  # in the whole sub-folder tree)
+  -
+    name: 'Sample Git Pull All Action 1'
+    type: GIT_PULL_ALL
+    variables:
+      -
+        key: 'folder'
+        type: FREE_SELECT
+        options:
+          - 'my-folder-1'
+          - 'My Folder 2'
+    git-pull-all-definition:
+      parent-folder: '#[folder]'
+      skip-if-working-tree-dirty: false
+
   # Operating System Commands Action that runs two commands on a folder (folder and commands are
   # dynamically defined by 2 variables)
   -

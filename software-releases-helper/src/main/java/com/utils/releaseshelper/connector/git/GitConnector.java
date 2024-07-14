@@ -1,5 +1,6 @@
 package com.utils.releaseshelper.connector.git;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Set;
 
@@ -15,6 +16,8 @@ import com.utils.releaseshelper.connector.Connector;
 public interface GitConnector extends Connector {
 	
 	GitRepository getRepository(String repositoryPath);
+	
+	GitRepository getRepository(File repositoryFolder);
 
 	boolean isWorkingTreeClean(GitRepository gitRepository);
 	

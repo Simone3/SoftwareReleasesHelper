@@ -12,6 +12,7 @@ import com.utils.releaseshelper.model.domain.Config;
 import com.utils.releaseshelper.model.domain.GitCommit;
 import com.utils.releaseshelper.model.domain.GitConfig;
 import com.utils.releaseshelper.model.domain.GitMergesAction;
+import com.utils.releaseshelper.model.domain.GitPullAllAction;
 import com.utils.releaseshelper.model.domain.JenkinsBuildAction;
 import com.utils.releaseshelper.model.domain.JenkinsConfig;
 import com.utils.releaseshelper.model.domain.OperatingSystemCommand;
@@ -23,6 +24,7 @@ import com.utils.releaseshelper.model.properties.ActionProperty;
 import com.utils.releaseshelper.model.properties.ActionTypeProperty;
 import com.utils.releaseshelper.model.properties.GitCommitProperty;
 import com.utils.releaseshelper.model.properties.GitMergesDefinitionProperty;
+import com.utils.releaseshelper.model.properties.GitPullAllDefinitionProperty;
 import com.utils.releaseshelper.model.properties.JenkinsBuildDefinitionProperty;
 import com.utils.releaseshelper.model.properties.JenkinsParameterProperty;
 import com.utils.releaseshelper.model.properties.OperatingSystemCommandProperty;
@@ -87,6 +89,9 @@ public class ActionMapperValidator {
 				
 			case GIT_MERGES:
 				return mapAndValidateGitMergesAction(actionProperty, config.getGit());
+				
+			case GIT_PULL_ALL:
+				return mapAndValidateGitPullAllAction(actionProperty, config.getGit());
 				
 			case OPERATING_SYSTEM_COMMANDS:
 				return mapAndValidateOperatingSystemCommandsAction(actionProperty, config.getGit());
@@ -158,6 +163,24 @@ public class ActionMapperValidator {
 		action.setRepositoryFolder(fullRepositoryFolder);
 		action.setMerges(mergesProperties);
 		action.setPull(pullProperty != null && pullProperty);
+		
+		return action;
+	}
+
+	private static GitPullAllAction mapAndValidateGitPullAllAction(ActionProperty actionProperty, GitConfig gitConfig) {
+		
+		ValidationUtils.notNull(gitConfig, "There are no global Git configs");
+		
+		GitPullAllAction action = new GitPullAllAction();
+		mapAndValidateGenericAction(actionProperty, action);
+		
+		GitPullAllDefinitionProperty pullAllDefinition = ValidationUtils.notNull(actionProperty.getGitPullAllDefinition(), "Git pull all action does not have a pull definition property");
+
+		String parentFolderProperty = ValidationUtils.notBlank(pullAllDefinition.getParentFolder(), "Git pull all action does not have a parent folder");
+		Boolean skipIfWorkingTreeDirty = pullAllDefinition.getSkipIfWorkingTreeDirty();
+		
+		action.setParentFolder(parentFolderProperty);
+		action.setSkipIfWorkingTreeDirty(skipIfWorkingTreeDirty != null && skipIfWorkingTreeDirty);
 		
 		return action;
 	}

@@ -6,7 +6,7 @@
 
 Simple local web GUI that allows to automate some actions for software releases.
 
-Actions include Git merges, Jenkins builds and Operating System commands. 
+Actions include Git merges, Git pull all folders, Jenkins builds and Operating System commands. 
 
 
 ### Install and run
@@ -84,6 +84,27 @@ Example:
       pull: true
 ```
 
+##### Git Pull All Action
+
+It allows to pull all Git repositories inside a parent folder (any nested level).
+
+Fields:
+- `name`: action name, it must be unique for all actions (required)
+- `type`: `GIT_PULL_ALL` (required)
+- `git-pull-all-definition.parent-folder`: the absolute path of the parent folder (required), value can [contain placeholders](#variables)
+- `git-pull-all-definition.skip-if-working-tree-dirty`: if `true`, any repository with uncommitted changes will be skipped (default `false`)
+
+It requires a global [Git configuration](#git-config).
+
+Example:
+```
+  -
+    name: 'Sample Git Pull All Action 1'
+    type: GIT_PULL_ALL
+    git-pull-all-definition:
+      parent-folder: '/dev/my-folder'
+      skip-if-working-tree-dirty: false
+```
 
 ##### Operating System Commands Action
 

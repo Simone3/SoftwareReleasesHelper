@@ -19,5 +19,6 @@ public class ActionProperty {
 	// Type-specific
 	private JenkinsBuildDefinitionProperty jenkinsBuildDefinition;
 	private GitMergesDefinitionProperty gitMergesDefinition;
+	private GitPullAllDefinitionProperty gitPullAllDefinition;
 	private OperatingSystemCommandsDefinitionProperty osCommandsDefinition;
 }

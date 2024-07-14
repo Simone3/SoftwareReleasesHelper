@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -27,7 +29,6 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
-import lombok.SneakyThrows;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
@@ -38,7 +39,6 @@ public class JenkinsConnectorReal implements JenkinsConnector {
 
 	private final WebClient webClient;
 	
-	@SneakyThrows
 	public JenkinsConnectorReal(JenkinsConfig jenkinsConfig) {
 		
 		boolean insecureHttps = jenkinsConfig.isInsecureHttps();
@@ -53,10 +53,18 @@ public class JenkinsConnectorReal implements JenkinsConnector {
 		
 		if(insecureHttps) {
 
-			SslContext sslContext = SslContextBuilder
-				.forClient()
-				.trustManager(InsecureTrustManagerFactory.INSTANCE)
-				.build();
+			SslContext sslContext;
+			try {
+				
+				sslContext = SslContextBuilder
+					.forClient()
+					.trustManager(InsecureTrustManagerFactory.INSTANCE)
+					.build();
+			}
+			catch(SSLException e) {
+				
+				throw new BusinessException(e.getMessage(), e);
+			}
 			
 			httpClient = httpClient.secure(t -> t.sslContext(sslContext));
 		}

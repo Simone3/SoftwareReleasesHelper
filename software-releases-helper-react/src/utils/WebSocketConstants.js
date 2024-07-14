@@ -17,6 +17,7 @@ class WebSocketConstants {
 	static outboundRunActionChannelsMap = {
 		JENKINS_BUILD: '/app/action/jenkins/build/run',
 		GIT_MERGES: '/app/action/git/merge/run',
+		GIT_PULL_ALL: '/app/action/git/pull-all/run',
 		OPERATING_SYSTEM_COMMANDS: '/app/action/os/commands/run'
 	};
 
